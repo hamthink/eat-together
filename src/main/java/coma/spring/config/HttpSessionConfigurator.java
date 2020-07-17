@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class HttpSessionConfigurator extends Configurator{
 	@Autowired
 	private HttpSession session;
+	
 	@Override
 	public void modifyHandshake(
 			ServerEndpointConfig sec,
