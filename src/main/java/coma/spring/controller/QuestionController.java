@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import coma.spring.dto.MemberDTO;
 import coma.spring.dto.QuestionDTO;
@@ -87,9 +88,12 @@ public class QuestionController {
 	
 	//문의삭제
 	@RequestMapping("QuestionReceiverDel")
-	public String ReceiverDel(int msg_seq)throws Exception{
-		int result = msgservice.receiver_del(msg_seq);
-		
-		return "redirect:question_list?qcpage=1";
+	@ResponseBody
+	public int ReceiverDel(HttpServletRequest request)throws Exception{
+		String data = request.getParameter("msg_seqs"); 
+		String msg_seqs = data.substring(2,data.length()-2);
+		String[] checkList = msg_seqs.split("\",\"");
+		int resp = msgservice.receiver_del(checkList);
+		return resp;
 	}
 }

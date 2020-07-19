@@ -26,23 +26,25 @@
 .accordion-section .container .panel-default .panel-title a {
     display: block;
     font-family: 'NEXON Lv1 Gothic OTF';
+    color:#252525;
   /*   font-style: italic; */
-    font-size: 1.5rem;
+    font-size: 1.3rem;
 }
 .accordion-section .container .panel-default .panel-title a:after {
     font-family: 'NEXON Lv1 Gothic OTF';
     font-style: normal;
     font-size: 3rem;
-    content: "&#128316;";
-    color: #1f7de2;
+    content: "▲";
+    color: #252525;
     float: right;
     margin-top: -12px;
 }
 .accordion-section .container .panel-default .panel-title a.collapsed:after {
-    content: "\f107";
+    content: "▼";
+    text-decoration: none;
 }
 .accordion-section .container .panel-default .panel-body {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 .panel-heading{

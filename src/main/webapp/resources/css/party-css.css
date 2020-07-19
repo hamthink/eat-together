@@ -46,7 +46,8 @@ border-color:#ffcf00;
 }
 
 .loginError {
-	height: 610px;
+	height: 650px;
+	line-height: 300px;
 }
 
 .loginerrormsg {

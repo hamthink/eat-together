@@ -96,12 +96,20 @@
 		update msg set msg_view=1 where msg_seq=#{value}
 	</update>
 	<!-- 보낸사람삭제 -->
-	<update id="sender_del">
-		update msg set sender_del=1 where msg_seq=#{value}
+	<update id="sender_del" parameterType="map">
+		update msg set sender_del=1 where msg_seq in
+		<foreach collection="list" item="item" index="index"
+			separator="," open="(" close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
 	</update>
 	<!-- 받는사람삭제 -->
-	<update id="receiver_del">
-		update msg set receiver_del=1 where msg_seq=#{value}
+	<update id="receiver_del" parameterType="map">
+		update msg set receiver_del=1 where msg_seq in
+		<foreach collection="list" item="item" index="index"
+			separator="," open="(" close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
 	</update>
 
 

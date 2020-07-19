@@ -40,20 +40,69 @@
 <link rel="stylesheet" type="text/css" href="/resources/css/menubar.css">
 <!-- ******************* -->
 <script>
-function questionWritePopUp(){
-	var name = "qpop.test";
-	var option = "width=500,height=550 location=no";
-	window.open("question_write",name,option);
-}
-function questionViewPopUp(msg_seq){
-	var name = msg_seq;
-	var option ="width=500,height=550 location=no"
-	window.open("questionView?msg_seq="+msg_seq,name,option);
-}
-function msgReceiverDel(msg_seq) {
-	location.href = "QuestionReceiverDel?msg_seq=" + msg_seq;
-	alert("삭제성공");
-}
+	function questionWritePopUp() {
+		var name = "qpop.test";
+		var option = "width=500,height=550 location=no";
+		window.open("question_write", name, option);
+	}
+	function questionViewPopUp(msg_seq) {
+		var name = msg_seq;
+		var option = "width=500,height=550 location=no"
+		window.open("questionView?msg_seq=" + msg_seq, name, option);
+	}
+	function msgReceiverDel(msg_seq) {
+		location.href = "QuestionReceiverDel?msg_seq=" + msg_seq;
+		alert("삭제성공");
+	}
+	$(
+			function() {
+				$("#checkAll").click(function() {
+					if ($("#checkAll").is(":checked")) {
+						$(".checkboxes").prop("checked", true);
+					} else {
+						$(".checkboxes").prop("checked", false);
+					}
+				});
+				$(".checkboxes")
+						.click(
+								function() {
+									var checklength = $("input:checkbox[name='checkbox[]']").length;
+									console.log(checklength);
+									console
+											.log($("input:checkbox[name='checkbox[]']:checked").length);
+
+									if ($("input:checkbox[name='checkbox[]']:checked").length == checklength) {
+										$("#checkAll").prop("checked", true);
+									} else {
+										$("#checkAll").prop("checked", false);
+									}
+								});
+				$("#toOut").on("click", function() {
+					var result = confirm("정말로 쪽지를 삭제시키겠습니까?");
+					if (result) {
+						var arr = [];
+						$(".checkboxes:checked").each(function(i) {
+							arr.push($(this).val());
+						})
+						$.ajax({
+							url : "/msg/msgReceiverDel",
+							type : "post",
+							data : {
+								msg_seqs : JSON.stringify(arr)
+							}
+						}).done(function(resp) {
+							console.log(resp);
+							if (resp > 0) {
+								alert("선택한 쪽지가 삭제 처리 되었습니다.");
+								$(this).closest("tr").remove();
+								location.reload();
+							} else {
+								alert("쪽지 삭제에 실패하였습니다.");
+							}
+						})
+					}
+				})
+			})
 </script>
 <meta charset="UTF-8">
 <title>내 정보</title>
@@ -79,8 +128,12 @@ function msgReceiverDel(msg_seq) {
 					<tr>
 						<th scope="col">제목</th>
 						<th scope="col">날짜</th>
-						<th scope="col">답변여부</th>
-						<th scope="col">삭제</th>
+						<th scope="col" style="text-align: center;">답변여부</th>
+						<th scope="col"><label><input type="checkbox"
+								id="checkAll" class="checkAll"><span
+								class="label label-primary admin_text"></span> </label>
+							<button class="btn-sm btn-danger admin_text" id="toOut">삭제</button>
+						</th>
 					</tr>
 					<c:if test="${empty list}">
 						<tr>
@@ -89,18 +142,21 @@ function msgReceiverDel(msg_seq) {
 					</c:if>
 					<c:forEach var="i" items="${list}" varStatus="status">
 						<tr>
-							<td><a href="javascript:questionViewPopUp(${i.msg_seq})" style="color:black">${i.msg_title}</a></td>
+							<td><a href="javascript:questionViewPopUp(${i.msg_seq})"
+								style="color: black">${i.msg_title}</a></td>
 							<td>${i.date}</td>
-							<td><c:choose>
+							<td align="center"><c:choose>
 									<c:when test="${i.msg_view==0||i.msg_view==1}">
 										답변중	 	
 								 	</c:when>
 									<c:otherwise>
-								 		<button type="button" class="btn btn-warning" id="answerQuestion" onclick="location.href='javascript:questionViewPopUp(${i.msg_view})'">답변완료</button>
-								 	</c:otherwise>
+										<button type="button" class="btn btn-warning"
+											id="answerQuestion"
+											onclick="location.href='javascript:questionViewPopUp(${i.msg_view})'">답변완료</button>
+									</c:otherwise>
 								</c:choose></td>
-							<td><button type="button" class="btn btn-outline-dark"
-									onclick="location.href='javascript:msgReceiverDel(${i.msg_seq})'">삭제</button></td>
+							<td><input type="checkbox" name="checkbox[]"
+								value="${i.msg_seq}" class="checkboxes"></td>
 						</tr>
 					</c:forEach>
 					<tr>
@@ -125,8 +181,8 @@ function msgReceiverDel(msg_seq) {
 	<!-- footer  -->
 	<!-- ******************* -->
 	<script>
-		$("#question").on("click",function(){
-			location.href="javascript:questionWritePopUp()";
+		$("#question").on("click", function() {
+			location.href = "javascript:questionWritePopUp()";
 		})
 	</script>
 </body>

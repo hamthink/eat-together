@@ -50,9 +50,15 @@
 	<select id="partyByOption" resultType="coma.spring.dto.PartyDTO">
 		select * from (select
 		party.*, row_number() over(order by
-		${targetColumn} desc) rnum from
+		${targetColumn} desc, party.seq desc) rnum from
 		party) where rnum between #{start} and
 		#{end}
+	</select>
+	
+	<!-- by 태훈, 신고 리스트 출력 -->
+	<select id="reportList" resultType="coma.spring.dto.ReportDTO">
+		select * from (select report.* , row_number() over(order by seq desc)
+		rnum from report) where rnum between #{start} and #{end}
 	</select>
 
 	<!-- 여기는 네비 카운트 -->
@@ -69,7 +75,7 @@
 		msg
 		where msg_sender = #{msg_receiver} and
 		sender_del = 0 and msg_title
-		not like '%[1:1문의]%'
+		not like '%[1:1답변]%'
 	</select>
 	<!-- 관리자 휴지통 -->
 	<select id="getGarbageCount" resultType="int">
@@ -115,4 +121,8 @@
 	<update id="saveMsg">
 		update msg set receiver_del=0,sender_del=0 where msg_seq=#{value}
 	</update>
+	<!-- 태훈 신고 내용 보기 -->
+	<select id="getReportContent" resultType="coma.spring.dto.ReportDTO">
+		select * from report where seq = #{seq}
+	</select>
 </mapper>

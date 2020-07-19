@@ -139,8 +139,34 @@
 
 .team-name{
 	font-family: 'GmarketSansBold';
+	font-size:15pt;
 }
 
 .teamphoto{
-	width:50%;
+	width:400px;
+}
+
+.team_name{
+	font-family: 'GmarketSansBold';
+    font-size: 3.2em;
+	
+}
+
+#viewdetails > P {
+	font-size: 9pt;
+	font-family: 'NEXON Lv1 Gothic OTF';
+}
+
+.important_word{
+	color:red;
+	font-family: 'NEXON Lv1 Gothic OTF Bold'; 
+	
+}
+
+.grey_word{
+	color:#f5f5f5;
+}
+
+.modal-title{
+	font-family: 'NEXON Lv2 Gothic Bold'; 
 }

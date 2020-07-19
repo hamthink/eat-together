@@ -11,10 +11,8 @@ import org.springframework.stereotype.Repository;
 import coma.spring.dto.MemberDTO;
 import coma.spring.dto.MsgDTO;
 import coma.spring.dto.PartyDTO;
+import coma.spring.dto.ReportDTO;
 import coma.spring.statics.Configuration;
-
-
-
 
 @Repository
 public class AdminDAO {
@@ -49,6 +47,7 @@ public class AdminDAO {
 	public List<PartyDTO> partyByOption(Map<String, Object> param){
 		return mybatis.selectList("Admin.partyByOption", param);
 	}
+
 	//받은쪽지함
 	public List<MsgDTO> selectBySender(int cpage,String msg_receiver) throws Exception{
 		int start = cpage*Configuration.recordMsgCountPerPage - (Configuration.recordMsgCountPerPage - 1);
@@ -267,4 +266,13 @@ public class AdminDAO {
 				sb.append("</ul></nav>");
 				return sb.toString();
 			}
+			
+			// by 태훈 신고 리스트 출력하기
+			public List<ReportDTO> reportList(Map<String, Integer> param){
+				return mybatis.selectList("Admin.reportList", param);
+			}
+			public ReportDTO getReportContent(int seq) {
+				return mybatis.selectOne("Admin.getReportContent",seq);
+			}
+
 }

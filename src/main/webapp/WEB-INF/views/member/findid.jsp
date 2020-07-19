@@ -50,68 +50,82 @@
 	</fieldset>
 
 	<script>
-	window.onload = function() {
-		//account_email regex
-		$("#account_email")
-				.focusout(
-						function() {
-							if ($("#account_email").val() != "") {
-								var account_email = $("#account_email").val();
-								var account_emailregex = /[a-zA-Z0-9]*@[a-zA-Z0-9]*[.]{1}[a-zA-Z]{2,3}|([.]{1}[a-zA-Z]{2,3})$/;
-								if (!account_emailregex.test(account_email)) {
-									$("#account_email").val("");
-									alert("유효한 이메일을 입력해주세요.");
-									$("#account_email").focus();
+		window.onload = function() {
+			var code;
+			var id;
+
+			//account_email regex
+			$("#account_email")
+					.focusout(
+							function() {
+								if ($("#account_email").val() != "") {
+									var account_email = $("#account_email")
+											.val();
+									var account_emailregex = /[a-zA-Z0-9]*@[a-zA-Z0-9]*[.]{1}[a-zA-Z]{2,3}|([.]{1}[a-zA-Z]{2,3})$/;
+									if (!account_emailregex.test(account_email)) {
+										$("#account_email").val("");
+										alert("유효한 이메일을 입력해주세요.");
+										$("#account_email").focus();
+									}
 								}
-							}
-						})
+							})
 
-		//메일 인증 
-		$("#mail").on("click", function() {
-			if ($("#account_email").val() == "") {
-				alert("이메일을 입력해주십시오.");
-				$("#account_email").focus();
-			} else {
-				$.ajax({
-					url : "/mail/mailSendingForId",
-					type : "post",
-					dataType : "json",
-					data : {
-						account_email : $("#account_email").val()
-					}
-				}).done(function(resplist) {
-					code=resplist[0];
-					if (resplist!=null) {
-						alert("인증메일이 발송되었습니다.");
-						$("#mail_div").css("display", "block");
-						$("#mail_accept").on("click", function() {
-							if ($("#mail_text").val() == code) {
-								$("#mail_text").attr("readonly", true);
-								$("#mail_text").css("color", "blue");
-								$("#mail_text").val("인증에 성공하였습니다.");
-								
-								var id = resplist[1];
-								var maskId =  id.replace(/.{3}$/gi, "***");// 아이디 마스킹처리 정규식
-								
-								$("#findid_result").css("display", "block");
-								$("#findid_result").append("<div>회원님의 아이디는"+ maskId +"입니다.</div>");
-								$("#findid_result").append("<input type=button id=OkBtn value=확인 class='btn btn-warning' onclick='window.close();'>");
-							} else {
-								alert("회원가입시 입력한 이메일과 일치하지 않습니다.");
-								$("#mail_text").val("");
-								$("#mail_text").focus();
-							}
-						})
-					}else {
-						alert("이메일을 잘못 입력하였습니다.");
-						$("#mail_text").val("");
-						$("#mail_text").focus();
-					}
+			//메일 인증 
+			$("#mail").on("click", function() {
+				if ($("#account_email").val() == "") {
+					alert("이메일을 입력해주십시오.");
+					$("#account_email").focus();
+				} else {
+					$.ajax({
+						url : "/mail/mailSendingForId",
+						type : "post",
+						dataType : "json",
+						data : {
+							account_email : $("#account_email").val()
+						}
+					}).done(function(resplist) {
+						code = resplist[0];
+						id = resplist[1];
+						console.log(code);
+						//ajax 오류 수정 완료 _ 20200717
+						if (resplist[0] == null) {
+							alert("이메일을 잘못 입력하였습니다.");
+							$("#mail_text").val("");
+							$("#mail_text").focus();
+						} else {
+							alert("인증메일이 발송되었습니다.");
+							$("#mail_div").css("display", "block");
+						}
 
-				})
-			}
-		})
-	}
+					})
+				}
+			})
+
+			$("#mail_accept")
+					.on(
+							"click",
+							function() {
+								if ($("#mail_text").val() == code) {
+									$("#mail_text").attr("readonly", true);
+									$("#mail_text").css("color", "blue");
+									$("#mail_text").val("인증에 성공하였습니다.");
+
+									var maskId = id.replace(/.{3}$/gi, "***");// 아이디 마스킹처리 정규식
+
+									$("#findid_result").css("display", "block");
+									$("#findid_result").append(
+											"<div>회원님의 아이디는" + maskId
+													+ "입니다.</div>");
+									$("#findid_result")
+											.append(
+													"<input type=button id=OkBtn value=확인 class='btn btn-warning' onclick='window.close();'>");
+								} else {
+									alert("회원가입시 입력한 이메일과 일치하지 않습니다.");
+									$("#mail_text").val("");
+									$("#mail_text").focus();
+								}
+							})
+		}
 	</script>
 </body>
 </html>

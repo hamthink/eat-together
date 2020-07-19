@@ -272,28 +272,29 @@ public class MemberController {
 		}
 	}
 
-	//회원탈퇴하기
+	//회원탈퇴하기 파라미터 수정_20200717
 	@RequestMapping("withdrawProc")
 	public String withdrawProc() throws Exception{
 		//By지은, 카카오톡 로그인의 경우 회원탈퇴 시 어세스토큰 만료 필요하다_20200712
 		//회원탈퇴 이메일로 수정함_20200713
+		MemberDTO mdto = (MemberDTO) session.getAttribute("loginInfo");
+		String nickname = mdto.getNickname();
+		String id = mdto.getId();
+		
 		if(session.getAttribute("access_Token")!=null) {
 			String access_Token = (String) session.getAttribute("access_Token");
-			MemberDTO mdto = (MemberDTO) session.getAttribute("loginInfo");
-			String id = mdto.getId();
 
-			int result = mservice.deleteMember(id);
+			int result = mservice.deleteMember(id, nickname);
 			mservice.kakaoWithdraw(access_Token);
 			session.invalidate();
 			System.out.println("회원탈퇴 성공1 실패0" + result);
 			return "redirect:/";
 		}else {
 			//일반 회원탈퇴의 경우 어세스토큰 만료가 필요하지 않다_20200712
-			MemberDTO mdto = (MemberDTO) session.getAttribute("loginInfo");
-			String id = mdto.getId();
 
-			System.out.println("회원탈퇴하는 id : " + id);
-			int result = mservice.deleteMember(id);
+
+			System.out.println("회원탈퇴하는 id : " + nickname);
+			int result = mservice.deleteMember(id, nickname);
 			session.invalidate();
 			System.out.println("회원탈퇴 성공1 실패0" + result);
 			return "redirect:/";
@@ -320,7 +321,7 @@ public class MemberController {
 
 		if(oriprotectedpw.contentEquals(newprotectedpw)) {
 			System.out.println("수정하려는 비밀번호가 기존과 일치하여 에러 발생");
-			return "0";
+			return "";
 		}else {
 			Map<String, String> param = new HashMap<>();
 			param.put("targetColumn1", "pw");

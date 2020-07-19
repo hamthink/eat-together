@@ -36,8 +36,10 @@
 		id=#{value}
 	</select>
 	<!-- 닉네임으로 내정보 가져오기 -->
-	<select id="selectMyInfoByNick" resultType="coma.spring.dto.MemberDTO" resultMap="MemberFile">
-		select * from member where nickname=#{value}
+	<select id="selectMyInfoByNick"
+		resultType="coma.spring.dto.MemberDTO" resultMap="MemberFile">
+		select * from member
+		where nickname=#{value}
 	</select>
 	<select id="isEmailAvailable" resultType="int">
 		select count(*) from
@@ -67,13 +69,29 @@
 		where ${targetColumn2}=#{targetValue2}
 	</update>
 
-	<select id="emailCheck" resultType="coma.spring.dto.MemberDTO">
-		select * from member where
-		account_email=#{value}
+	<select id="emailCheck"
+		resultType="coma.spring.dto.MemberDTO">
+		select * from member where id=#{targetValue1} and
+		account_email=#{targetValue2}
 	</select>
 
-	<select id="deleteMember" resultType="int">
-		delete from member where id=#{value}
+	<select id="emailCheckForId"
+		resultType="coma.spring.dto.MemberDTO">
+		select * from member where account_email=#{value}
 	</select>
-
+<!-- 회원탈퇴 시 테이블마다 데이터를 지우는 매퍼 생성_20200717 -->
+	<delete id="deleteMember1">
+		delete from member where
+		nickname=#{value}
+	</delete>
+	<delete id="deleteMember2">
+		delete from party where writer=#{value}
+	</delete>
+	<delete id="deleteMember3">
+		delete from partylist where participant=#{value}
+	</delete>
+	<update id="renameReview">
+		update review set id='unknown'
+		where id =#{value}
+	</update>
 </mapper>

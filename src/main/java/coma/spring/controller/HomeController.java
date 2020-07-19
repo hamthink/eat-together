@@ -43,6 +43,10 @@ public class HomeController {
 		}
 
 	}
+	@RequestMapping("/home2")
+	public String home2() {
+		return "home2";
+	}
 
 	@RequestMapping("error")
 	public String error() {

@@ -19,24 +19,19 @@
 	src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 <meta charset="UTF-8">
 <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<style>
+	.text{
+	background-color:white;
+	width: 100%; padding: 10px;
+	word-break: keep-all; 
+	height: 180px; resize: none;
+	option:readonly,disabled;
+	}
+</style>
 <script>
-$(function(){
-	$("#container").find("#msg_text").keyup(function(){
-		var word = $(this).val();
-		var wordSize = word.length;
-		console.log(wordSize);
-		if(wordSize <=2000){
-			$(".current").text(wordSize);
-		}else{
-			word=word.substr(0,2000);
-			$(".current").text(word.length);
-			$(this).val(word);
-			alert("쪽지는 2000자 이하로 작성해주세요");
-		}
-	})
-})
+
 </script>
-<title>Insert title here</title>
+<title>1:1문의내역</title>
 </head>
 <body>
 	<div id=container>
@@ -49,7 +44,7 @@ $(function(){
 			<tbody>
 				<tr align="center">
 					<th scope="col">제목</th>
-					<th scope="col">${qdto.msg_title}</th>
+					<th scope="col"><c:out value="${qdto.msg_title}"></c:out></th>
 				</tr>
 
 				<tr align="center">
@@ -60,8 +55,7 @@ $(function(){
 					<th scope="col" colspan=12>내용</th>
 				</tr>
 				<tr align="center">
-					<td scope="col" colspan=12><textarea
-							style="width: 100%; padding: 10px; word-break: keep-all; height: 180px; resize: none;" id="msg_text"  name="msg_text" readonly>${qdto.msg_text}</textarea></td>
+					<td scope="col" colspan=12><textarea class="text" id="msg_text"  name="msg_text" readonly disabled><c:out value="${qdto.msg_text}"></c:out></textarea></td>
 				</tr>
 				<tr align="center">
 					<td scope="col" colspan=12>

@@ -2,10 +2,49 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="Report">
 	<insert id="newReport">
-		insert into report values(report_seq.nextval,#{category},#{id},#{report_id},sysdate,#{parent_seq})
+		insert into report values(report_seq.nextval,#{category},#{id},#{report_id},#{title},#{content},sysdate,#{parent_seq},0)
 	</insert>
 	<select id="checkDupl" resultType="int">
-		select count(*) from report where category=#{category} and id=#{id} and parent_seq=#{parent_seq}
+		select count(*) from report where category=#{category} and id=#{id} and parent_seq=#{parent_seq} and status=0
 	</select>
-</mapper> <!-- by 태훈 모임 글 신고 신고 테이블 추가 -->
+	
+	<select id="getListCount"  resultType="int">
+		select count(*) from report
+	</select>
+	
+	<update id="checkReport">
+		update report set status = 1 where seq = #{seq}
+	</update>
+	
+	<update id="checkOtherRepo">
+		update report set status=2 where category=#{category} and parent_seq=#{parent_seq} and seq!=#{seq}
+	</update>
+	
+	<update id="acceptReport">
+		update member set report_count = report_count + 1 where nickname = #{report_id}
+	</update>
+	
+	<update id="repoCountDown">
+		update ${table}
+		set report = report-1 where seq = #{seq}
+	</update>
+		 
+	
+	<delete id="deleteContent">
+		delete from ${table} where seq= #{seq}
+	</delete>
+	<!-- 주제분류 네비카운트 -->
+	<select id="getCount" resultType="int">
+		select count(*) from report where category=#{category}
+	</select>
+	<!-- 주제분류 select문 -->
+	<select id="ListByCategory" resultType="coma.spring.dto.ReportDTO">
+		select * from(select
+		report.*,row_number() over(order by report_date desc)
+		rnum from report where
+		category=#{category}) where rnum between
+		#{start} and #{end}
+	</select>
+
+</mapper> 
    

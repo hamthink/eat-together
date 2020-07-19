@@ -50,7 +50,7 @@ $(function(){
 			<tbody>
 				<tr align="center">
 					<th scope="col">제목</th>
-					<th scope="col">[1:1문의]<input type="text" id="msg_title" name="msg_title"></th>
+					<th scope="col">[1:1문의]<input type="text" id="msg_title" name="msg_title" maxlength="15"></th>
 				</tr>
 
 				<tr align="center">
@@ -73,13 +73,27 @@ $(function(){
 				</tr>
 				<tr align="center">
 					<td scope="col" colspan=12>
-					<button type="submit" class="btn btn-secondary">문의하기</button>
+					<button type="submit" id="submit" class="btn btn-secondary">문의하기</button>
 					</td>
 				</tr>
 			</tbody>
 		</table>
 		</form>
 	</div>
-
+<script>
+	$("#submit").on("click",function(){
+		if($("#msg_title").val()!=""){
+			if($("#msg_text").val()!=""){
+				return true;
+			}else{
+				alert("내용을 입력하세요");
+				return false;
+			}
+		}else{
+			alert("제목을 입력하세요");
+			return false;
+		}
+	})
+</script>
 </body>
 </html>

@@ -3,15 +3,14 @@
 <mapper namespace="Review">
 	<insert id="insert">
 		insert into review
-		values(review_seq.nextval,#{id},#{content},#{rating},sysdate,#{parent_seq},default)
+		values(review_seq.nextval,#{id},#{content},#{rating},sysdate,#{parent_seq},default,#{profile})
 	</insert>
 	<insert id="insertFile">
 		insert into review_file
 		values(review_file_seq.nextval,#{sysname},#{oriname},review_seq.currval)
 	</insert>
 	<select id="selectByPseq" resultType="coma.spring.dto.ReviewDTO">
-		select review.*, member.profile from review, member where
-		review.parent_seq = #{parent_seq} and review.id = member.id order by 1 desc
+		select * from review where parent_seq = #{parent_seq} order by 1 desc
 	</select>
 	<select id="selectFileByPseq"
 		resultType="coma.spring.dto.ReviewFileDTO">
@@ -43,7 +42,12 @@
 	<select id="top5review" resultType="coma.spring.dto.TopFiveStoreDTO">
 		select id, parent_seq,(select name from map where seq = parent_seq), content 
 		from (select parent_seq, content, id, row_number() over(partition by parent_seq order by rating desc,length(content) desc) rank 
-		from review where parent_seq in (#{top1},#{top2},#{top3},#{top4},#{top5})) where rank = 1 order by parent_seq desc
+		from review where parent_seq in 
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+ 			'${item}'
+		</foreach>
+		<!-- (#{top1},#{top2},#{top3},#{top4},#{top5})) --> 
+		)where rank = 1 order by parent_seq desc
 	</select>
 	<!-- by예지, 관리지 페이지에서 리뷰 체크박스 삭제 처리 -->
 	<delete id="delete" parameterType="map">

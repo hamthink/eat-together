@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import coma.spring.dto.FaqDTO;
+import coma.spring.dto.MemberDTO;
 import coma.spring.dto.NoticeDTO;
 import coma.spring.dto.NoticeFileDTO;
 import coma.spring.service.FaqService;
@@ -93,6 +95,40 @@ public class FaqController {
 		fservice.update(dto);
 		return "redirect:/admin/toAdmin_faq";
 	}
+	
+	//by 수지, 회원정보 옵션 검색하기
+		@RequestMapping("searchByOption")
+		public ModelAndView searchByOption(HttpServletRequest request)throws Exception {
+			ModelAndView mav = new ModelAndView();
+			mav.setViewName("/faq/faq_list");
+			Object option;
+			String category="";
+
+			if(request.getParameter("option")!=null) {
+				option = request.getParameter("option");
+				session.setAttribute("option", option);
+				category =  request.getParameter("option");
+				session.setAttribute("category", category);
+			}else {
+				option = session.getAttribute("option");
+				category = (String) session.getAttribute("category");
+			}
+				
+			int cpage=1;
+			try {
+				cpage = Integer.parseInt(request.getParameter("cpage"));
+			}catch(Exception e) {
+
+			}
+			
+			
+			List<FaqDTO> list = fservice.selectByOption(cpage, option);
+			String navi = fservice.getSelectFaqPageNav(cpage, option, category);
+
+			mav.addObject("list", list);
+			mav.addObject("navi", navi);
+			return mav;
+		}
 
 	
 }

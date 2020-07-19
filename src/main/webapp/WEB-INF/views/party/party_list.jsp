@@ -28,9 +28,12 @@
 <!-- Vendor CSS Files -->
 <link href="/resources/assets/vendor/icofont/icofont.min.css" rel="stylesheet">
 <link href="/resources/assets/vendor/animate.css/animate.min.css" rel="stylesheet">
-
+<link href="/resources/assets/vendor/animate.css/animate.min.css" rel="stylesheet">
+<link href="/resources/assets/vendor/font-awesome/css/font-awesome.min.css"
+	rel="stylesheet">
+	
 <!-- Template Main CSS File -->
-<link href="/resources/assets/css/style.css" rel="stylesheet">
+<link href="/resources/assets/css/style.css?ver=1" rel="stylesheet">
 <!-- 태훈 추가 -->
 
 <!-- BootStrap4 -->
@@ -70,7 +73,7 @@
 	href="/resources/css/party-css.css">
 
 <!-- 태훈 css -->
-<link rel="stylesheet" type="text/css" href="/resources/css/party-content-include.css?ver=5">
+<link rel="stylesheet" type="text/css" href="/resources/css/party-content-include.css?ver=7">
 <!-- 태훈 css -->
 
 <title>모임 리스트</title>
@@ -89,9 +92,11 @@ console.log(imgHeight);
 /******************* 변수 ************************/
  
 /************************* 첫  페이지 로딩 ******************************/
-window.onload = $(function() { //페이지가 로드되면 데이터를 가져오고 page를 증가시킨다.
+window.onload = $(function() { //페이지가 로드되면 데이터를 가져오고 page를 증가시킨다.	
 	getPartyList(cpage);
+	test();
 	cpage++;
+	area();
 });
 /*********************** End 첫  페이지 로딩 ****************************/
 
@@ -105,13 +110,10 @@ function getDocHeight() {
     );
 }
 
-function test() {
-    window.onbeforeunload = function (e) {
-    	cpage = 1;
-    	$(window).scrollTop(0);
-    };
+function test(){
+	$(window).scrollTop(0);
 }
-
+		 
 $(function() {	
 	$(window).scroll(function() { //스크롤이 최하단 으로 내려가면 리스트를 조회하고 page를 증가시킨다.
 		console.log(getDocHeight());
@@ -162,7 +164,7 @@ function partySearch(url,formData,cpage){
 		url : url,
 		data : {"formData" : formData, "cpage":cpage},
 		success : function(partyList) {
-			$("#start_list").append("<div class=\"col-lg-3 col-md-4 col-sm-6 col-xs-12\" style=\"background-color: ivory\"><span>"+cpage+" 통합 검색<span></div>");
+			//$("#start_list").append("<div class=\"col-lg-3 col-md-4 col-sm-6 col-xs-12\" style=\"background-color: ivory\"><span>"+cpage+" 통합 검색<span></div>");
 			$("#start_list").append(partyList);
 		},
 	    error:function(e){
@@ -179,7 +181,7 @@ function getPartyList(cpage){
         data : {"cpage" : cpage},
         url : '/party/getPartyList',
         success : function(partyList) {
-        	$("#start_list").append("<div class=\"col-lg-3 col-md-4 col-sm-6 col-xs-12\" style=\"background-color: ivory\"><span>"+cpage+ "기본 검색 <span></div>");
+        	//$("#start_list").append("<div class=\"col-lg-3 col-md-4 col-sm-6 col-xs-12\" style=\"background-color: ivory\"><span>"+cpage+ "기본 검색 <span></div>");
             $("#start_list").append(partyList);         
        },
        error:function(e){
@@ -201,8 +203,13 @@ $(function(){
 		
 	    e.preventDefault(); // avoid to execute the actual submit of the form.
 	    
-		$("#start_list").empty();
+		$("#start_list").empty();	
+	    test();
 		partySearch(url,formData,cpage);
+		$("#idForm")[0].reset();
+		$("option", $("#sido")).remove();
+		$("option", $("#gugun")).remove();
+		area();
 	});	
 });
 /********************** End 통합 검색 ***************************/
@@ -214,7 +221,7 @@ $(function() {
 		console.log("버튼 기능 시작");
 		if ("${loginInfo.id}" == "") {
 			alert("로그인 후 이용해주세요");
-			//location.replace('/member/loginview');
+			location.replace('/member/loginview');
 		} else {
 			var select_seq = $(this).parent().siblings().children(".party_seq").val();
 			$("#aaa").empty();
@@ -232,7 +239,7 @@ $(function() {
 /***************** End 태훈 모임 내용 모달창 생성 **********************/
 
 /*****************************************  태훈  지역 검색 스크립트  ***********************************************/
-$(function() {
+function area () {
 	
 	/******************* 지역 리스트 ************************/
 	var area0 = [ "시/도 선택", "서울", "인천", "대전", "광주", "대구", "울산", "부산", "경기",
@@ -280,7 +287,7 @@ $(function() {
 	$.each(area0,function() {
 		$("#sido").append("<option value='"+this+"'>" + this + "</option>");
 	});
-	$("#gugun").append("<option value=''>구/군 선택</option>");
+	$("#gugun").append("<option value=''>구/군 선택</option>");	
 	// 시/도 선택시 구/군 설정
 	$("#sido").change(function() {
 		var areaindex = $('option:selected', $(this)).index();
@@ -294,63 +301,61 @@ $(function() {
 			});
 		}
 	});
-});
+};
 /*************************************** End 태훈  지역 검색 스크립트  *********************************************/
 
 /**************************** 인기 맛집  모집하러기 *********************************/
  $(function(){
 	 $(".topBtn").on("click", function() {
+		 if ("${loginInfo.id}" == "") {
+				alert("로그인 후 이용해주세요");
+				location.replace('/member/loginview');
+		}else{
 			location.href = "/map/mapToParty_New?parent_name="
-								+ $(this).siblings(".store_name").html()
-								+ "&parent_address="
-								+ $(this).siblings(".store_address").val()
-								+ "&img=" + $(this).parent().siblings().find("img").attr("src")
-								+ "&place_id="
-								+ $(this).siblings(".store_place_id").val()
-								+ "&category="
-								+ $(this).siblings(".store_category").val();
-		});	 
+				+ $(this).siblings(".store_name").html()
+				+ "&parent_address="
+				+ $(this).siblings(".store_address").val()
+				+ "&img=" + $(this).parent().siblings().find("img").attr("src")
+				+ "&place_id="
+				+ $(this).siblings(".store_place_id").val()
+				+ "&category="
+				+ $(this).siblings(".store_category").val();
+		}
+	});	 
  });
 /************************** End 인기 맛집  모집하러기 ********************************/
- 
-/***************** by 예지 페이지 로딩 스피너 **************/ 
+
+/***************** by 페이지 로딩 스피너 **************/ 
 $(function(){
 	$('#Progress_Loading').hide(); //첫 시작시 로딩바를 숨겨준다.	
 });
-/***************** End예지 페이지 로딩 스피너 **************/
+/***************** End 페이지 로딩 스피너 **************/
 
-$(function(){
-	$('.top5 .partylist>img').each(function (index, item) { 
-		// 인덱스는 말 그대로 인덱스 // item 은 해당 선택자인 객체를 나타냅니다. 
-		$(this ).css('height', $(this).height());  
-	});	
+
+/***************** 상단 돌아가기 버튼 **************/
+$(function() {
+	$(window).scroll(function() {
+		if ($(this).scrollTop() > 100) {
+			$('.back-to-top').fadeIn('slow');
+		} else {
+			$('.back-to-top').fadeOut('slow');
+		}
+	});
+	$('.back-to-top').click(function() {
+		$('html, body').animate({
+			scrollTop : 0
+		}, 1500, 'easeInOutExpo');
+		return false;
+	});
 });
 
-/*--------------------------
-Back to top button
----------------------------- */
-
-	$(function() {
-		$(window).scroll(function() {
-			if ($(this).scrollTop() > 100) {
-				$('.back-to-top').fadeIn('slow');
-			} else {
-				$('.back-to-top').fadeOut('slow');
-			}
-		});
-
-		$('.back-to-top').click(function() {
-			$('html, body').animate({
-				scrollTop : 0
-			}, 1500, 'easeInOutExpo');
-			return false;
-		});
-	});
+	 
+/***************** 상단 돌아가기 버튼 **************/
 </script>
 <style>
 
 .aa {
-	width: 80%;
+	width: 60%;
 	margin: auto;
 }
 
@@ -370,13 +375,10 @@ Back to top button
 }
 
 .searchpart{
-	background-color:#cfcfcf;
+	background-color:#ffd04f;
 	padding:15px;
 }
-#lineline{
-	margin-top:3rem;
-	margin-bottom:0rem;
-}
+
 
 #Progress_Loading{
 	position:fixed;
@@ -418,6 +420,15 @@ Back to top button
 /*   height: 박스의 height와 같아야 한다. */
   transform: translate(-50%, -50%);
 }
+.topBtn{
+	background-color:#ff923c;
+	border-color:#ff923c;
+}
+.topBtn:hover{
+	background-color:#ff9d4f;
+	border-color:#ff9d4f;
+}
+
 </style>
 </head>
 <body>
@@ -429,19 +440,12 @@ Back to top button
 	<!-- ******************* -->
 
 	<div class="container-fluid">
-	
+		
 		<!-- ================ Top 5 Section ================ -->
-		<!-- <div class="row aa">
+		<div class="row aa">
 			<span class="col-12 listtitle">인기 맛집 Top 5!</span>
-		</div> -->
-		<div class="row">
-					<div class="col-md-12 col-sm-12 col-xs-12">
-						<div class="section-headline text-center">
-							<h2>밥 먹고 갈래?</h2>
-						</div>
-					</div>
-				</div>
-		<div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 aa top5">
+		</div>
+		<div class="row row-cols-1 row-cols-sm-3 row-cols-lg-5 aa top5">
 			<c:forEach var="top" items="${top}" varStatus="status">
 					<div class="card partylist">
 						<div class="thumbnail-wrapper imgBox">
@@ -461,7 +465,7 @@ Back to top button
 									${top.address }
 								</c:when>
 									<c:otherwise>
-										<c:out value="${review[top.seq].content }" />\
+										<c:out value="${review[top.seq].content }" />
 									<br>
 									- by ${review[top.seq].id }	
 								</c:otherwise>
@@ -478,6 +482,12 @@ Back to top button
 			</c:forEach>
 		</div>
 		<!-- ============== End Top 5 Section ============== -->
+		
+		<!-- =========== Loding Spinner Section ============= -->
+		<div id = "Progress_Loading"><!-- 로딩바 -->
+			<img src="/resources/img/Progress_Loading.gif"/>
+		</div>
+		<!-- ========== End Loding Spinner Section ========== -->
 		
 		<!-- ============== Party List Search Section ============== -->
 		<div class="row aa searchpart">
@@ -525,16 +535,19 @@ Back to top button
 		</div>
 	</div>
 	<!-- ============ End Party List Search Section ============ -->
-	<hr id="lineline" width="95%" color="black">
-	<!-- =========== Loding Spinner Section ============= -->
-	<div id = "Progress_Loading"><!-- 로딩바 -->
-		<img src="/resources/img/Progress_Loading.gif"/>
-	</div>
-	<!-- ========== End Loding Spinner Section ========== -->
-	
+
 	<!-- ======= Party List Section ======= -->
 	<main id="main">
 		<div class="area-padding">
+		
+		<div class="row">
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<div class="section-headline text-center">
+					<h2>밥 먹고 갈래?</h2>
+				</div>
+			</div>
+		</div>
+		
 			<div class="container-fluid">
 				
 				<div class="row" id="start_list">

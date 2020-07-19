@@ -166,5 +166,9 @@ public class PartyDAO {
 	public int restartRecruit(String seq) throws Exception {
 		return mybatis.update("Party.restartRecruit",seq);
 	}
+	// 예지 - 모임글 관리 체크박스 삭제
+	public int deleteCheckList(List<String> list) {
+		return mybatis.delete("Party.deleteCheckList", list);
+	}
 
 }

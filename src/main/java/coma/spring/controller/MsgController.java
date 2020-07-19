@@ -107,6 +107,12 @@ public class MsgController {
 		String msg_receiver = mdto.getNickname();
 		System.out.println(msg_receiver+"의 보낸 쪽지함");
 		
+
+		int newMsg=msgservice.newmsg(msg_receiver);
+		int newMsgByAdmin=msgservice.newMsgByAdmin(msg_receiver);
+		int newMsgByNick=msgservice.newMsgByNick(msg_receiver);
+		
+		
 		if(session.getAttribute("msgRcpage")==null) {
 			session.setAttribute("msgRcpage", 1);
 		}
@@ -118,7 +124,10 @@ public class MsgController {
 		
 		List<MsgDTO> dto = msgservice.selectByReceiver(msgRcpage,msg_receiver);
 		String navi =msgservice.Receivenavi(msgRcpage, msg_receiver);
-		
+
+		session.setAttribute("newMsg", newMsg);
+		request.setAttribute("newMsgByAdmin", newMsgByAdmin);
+		request.setAttribute("newMsgByNick", newMsgByNick);
 		request.setAttribute("navi", navi);
 		request.setAttribute("list", dto);
 		return "msg/mypage_receivemsg";
@@ -151,7 +160,7 @@ public class MsgController {
 		//아이디가 있는 아이디인지 체크
 		System.out.println(check);
 		if(check) {
-			return "/chat/error";
+			return "msg/msgWriteFail";
 		}else {
 		request.setAttribute("msg_receiver", msg_receiver);
 		return "msg/msgWriteResponse";
@@ -191,18 +200,26 @@ public class MsgController {
 	}
 	
 	//받은쪽지함 삭제
+	
 	@RequestMapping("msgReceiverDel")
-	public String ReceiverDel(int msg_seq)throws Exception{
-		int result = msgservice.receiver_del(msg_seq);
-		return "redirect:msg_list_sender";
+	@ResponseBody
+	public int ReceiverDel(HttpServletRequest request)throws Exception{
+		String data = request.getParameter("msg_seqs"); 
+		String msg_seqs = data.substring(2,data.length()-2);
+		String[] checkList = msg_seqs.split("\",\"");
+		int resp = msgservice.receiver_del(checkList);
+		return resp;
 	}
 	
 	//보낸쪽지함 삭제
 	@RequestMapping("msgSenderDel")
-	public String SenderDel(int msg_seq)throws Exception{
-		System.out.println(msg_seq);
-		int result = msgservice.sender_del(msg_seq);
-		return "redirect:msg_list_receiver";
+	@ResponseBody
+	public int SenderDel(HttpServletRequest request)throws Exception{
+		String data = request.getParameter("msg_seqs"); 
+		String msg_seqs = data.substring(2,data.length()-2);
+		String[] checkList = msg_seqs.split("\",\"");
+		int resp = msgservice.sender_del(checkList);
+		return resp;
 	}
 	
 	@RequestMapping("newmsg")

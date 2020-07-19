@@ -62,4 +62,5 @@ public class MapDAO {
 	public List<MapDTO> selectTopStore(){	
 		return mybatis.selectList("Map.topStore");
 	}
+	
 }

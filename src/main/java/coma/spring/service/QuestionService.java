@@ -12,7 +12,7 @@ import coma.spring.dto.QuestionDTO;
 public class QuestionService {
 	@Autowired
 	private QuestionDAO qdao;
-	
+
 	//1:1문의 리스트
 	public List<QuestionDTO> selectByQuestion(int cpage,String msg_receiver)throws Exception{
 		List<QuestionDTO> qdto = qdao.selectByQuestion(cpage, msg_receiver);
@@ -23,6 +23,18 @@ public class QuestionService {
 		List<QuestionDTO> qdto = qdao.selectByAdminQ(cpage);
 		return qdto;
 	}
+	//1:1문의 관리자 리스트
+	public List<QuestionDTO> selectByNoAnswer(int cpage)throws Exception{
+		List<QuestionDTO> qdto = qdao.selectByNoAnswer(cpage);
+		return qdto;
+	}
+	//1:1문의 관리자 리스트
+	public List<QuestionDTO> selectByYesAnswer(int cpage)throws Exception{
+		List<QuestionDTO> qdto = qdao.selectByYesAnswer(cpage);
+		return qdto;
+	}
+	
+	
 	//1:1문의 보내기
 	public int insertQuestion(QuestionDTO qdto)throws Exception{
 		int result = qdao.insertQuestion(qdto);
@@ -49,20 +61,32 @@ public class QuestionService {
 		return result;
 	}
 	//1:1문의 보기
-		public QuestionDTO selectByView(int msg_view)throws Exception{
-			QuestionDTO qdto = qdao.selectByView(msg_view);
-			return qdto;
-		}
-	
+	public QuestionDTO selectByView(int msg_view)throws Exception{
+		QuestionDTO qdto = qdao.selectByView(msg_view);
+		return qdto;
+	}
+
 	//네비메뉴
 	//1:1문의 네비
 	public String QuestionNavi(int cpage,String msg_receiver)throws Exception{
 		String navi = qdao.getQuestionPageNav(cpage, msg_receiver);
 		return navi;
 	}
+	
 	//1:1문의 관리자 네비
 	public String AdminQuestionNavi(int cpage)throws Exception{
 		String navi = qdao.getAdminQPageNav(cpage);
 		return navi;
 	}
+	//1:1문의 관리자 네비
+	public String AdminNoAnswerNavi(int cpage)throws Exception{
+		String navi = qdao.getNoAnswerPageNav(cpage);
+		return navi;
+	}
+	//1:1문의 관리자 네비
+	public String AdminYesAnswerNavi(int cpage)throws Exception{
+		String navi = qdao.getYesAnswerPageNav(cpage);
+		return navi;
+	}
+
 }

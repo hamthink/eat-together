@@ -58,6 +58,51 @@
 		$("#list_receiver").on("click", function() {
 			location.href = "msg_list_receiver";
 		})
+		
+		$("#checkAll").click(function() {
+			if ($("#checkAll").is(":checked")) {
+				$(".checkboxes").prop("checked", true);
+			} else {
+				$(".checkboxes").prop("checked", false);
+			}
+		});
+		$(".checkboxes").click(function() {
+			var checklength = $("input:checkbox[name='checkbox[]']").length;
+			console.log(checklength);
+			console
+					.log($("input:checkbox[name='checkbox[]']:checked").length);
+
+			if ($("input:checkbox[name='checkbox[]']:checked").length == checklength) {
+				$("#checkAll").prop("checked", true);
+			} else {
+				$("#checkAll").prop("checked", false);
+			}
+		});
+		$("#toOut").on("click", function() {
+			var result = confirm("정말로 쪽지를 삭제시키겠습니까?");
+			if (result) {
+				var arr = [];
+				$(".checkboxes:checked").each(function(i) {
+					arr.push($(this).val());
+				})
+				$.ajax({
+					url : "/msg/msgReceiverDel",
+					type : "post",
+					data : {
+						msg_seqs : JSON.stringify(arr)
+					}
+				}).done(function(resp) {
+					console.log(resp);
+					if(resp>0){
+					alert("선택한 쪽지가 삭제 처리 되었습니다.");
+					$(this).closest("tr").remove();
+						location.reload();
+					}else{
+						alert("쪽지 삭제에 실패하였습니다.");
+					}
+				})
+			}
+		})
 
 		$(".newMsg").on("click", function() {
 			$.ajax({
@@ -112,20 +157,22 @@
 					<tr>
 						<td scope="col" colspan=12 align="left">
 							<button type="button" class="btn btn-outline-danger"
-								id="list_admin">관리자
+								id="list_admin">
+								관리자
 								<c:if test="${newMsgByAdmin!=0}">
 									<span class="badge badge-danger">N</span>
 								</c:if>
-								</button>
+							</button>
 							<button type="button" class="btn btn-outline-warning"
-								id="list_sender">받은 쪽지함
+								id="list_sender">
+								받은 쪽지함
 								<c:if test="${newMsgByNick!=0}">
 									<span class="badge badge-danger">N</span>
 								</c:if>
-								</button>
+							</button>
 							<button type="button" class="btn btn-outline-warning"
 								id="list_receiver">보낸쪽지함</button>
-								<button type="button" class="btn btn-warning" id="writeMsg">쪽지보내기</button>
+							<button type="button" class="btn btn-warning" id="writeMsg">쪽지보내기</button>
 						</td>
 					</tr>
 					<tr align="center">
@@ -133,7 +180,11 @@
 						<th scope="col" colspan=2>보낸사람</th>
 						<th scope="col" colspan=4>제목</th>
 						<th scope="col" colspan=2>날짜</th>
-						<th scope="col" colspan=2>삭제</th>
+						<th scope="col" colspan=2><label><input
+								type="checkbox" id="checkAll" class="checkAll"><span
+								class="label label-primary admin_text"></span> </label>
+							<button class="btn-sm btn-danger admin_text" id="toOut">삭제</button>
+						</th>
 					</tr>
 					<tr>
 						<c:if test="${empty list}">
@@ -171,10 +222,8 @@
 								href="javascript:msgViewPopUp(${i.msg_seq})" class="newMsg"><c:out
 										value="${i.msg_title}" /></a></td>
 							<td colspan=2>${i.date}</td>
-							<td colspan=2>
-								<button type="button" class="btn btn-outline-dark"
-									onclick="location.href='javascript:msgReceiverDel(${i.msg_seq})'">삭제</button>
-							</td>
+							<td colspan=2><input type="checkbox" name="checkbox[]"
+								value="${i.msg_seq}" class="checkboxes"></td>
 						</tr>
 					</c:forEach>
 

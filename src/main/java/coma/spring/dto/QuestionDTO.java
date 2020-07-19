@@ -18,7 +18,6 @@ public class QuestionDTO {
 	public String getDate() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	    String date = sdf.format(msg_date);
-	    System.out.println(date);
 		return date;
 	}
 	public void setdate(String date) {

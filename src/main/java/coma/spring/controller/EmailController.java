@@ -146,8 +146,8 @@ public class EmailController {
 					"	</h1>\r\n" + 
 					"	<p style=\"font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px;\">\r\n" + 
 					"		안녕하세요.<br>\r\n" + 
-					"		<맛집갔다갈래> 사이트 이용에 필요한 이메일 인증메일을 보내드립니다.<br>\r\n" + 
-					"		"+ dice +"인증문자열을 인증란에 입력해주시길 바랍니다.<br>\r\n" + 
+					"		<맛집갔다갈래>에서 인증메일을 보내드립니다.<br>\r\n<br>" + 
+					"		인증코드 : <strong>"+ dice +"</strong><br>\r\n<br> 인증코드를 인증란에 입력해주시길 바랍니다.<br>\r\n" + 
 					"		감사합니다.\r\n" + 
 					"	</p>\r\n" + 
 					"<center>\r\n" + 
@@ -175,7 +175,7 @@ public class EmailController {
 				Message message = new MimeMessage(session);
 				message.setFrom(new InternetAddress("no-reply@eat-together.net"));
 				message.setRecipients(Message.RecipientType.TO,
-						InternetAddress.parse(account_email));
+						InternetAddress.parse(recipient));
 				message.setSubject(subject);
 				message.setContent(msg, "text/html; charset=utf-8");
 				Transport.send(message);
@@ -197,23 +197,22 @@ public class EmailController {
 		String username = "eat-together";
 		String password = "aktwlqrkTekrkffo?";
 		List<String> resplist = new ArrayList<>();
-
-		String input_account_email = account_email;
+		
 		System.out.println("아이디 찾기용 입력한 이메일 : " + account_email);
-		MemberDTO mdto = mservice.emailCheck(input_account_email);
+		MemberDTO mdto = mservice.emailCheckForFindId(account_email);
 
 
 		if(mdto==null) {
-			System.out.println("이메일 불일치");
-			resplist = null;
+			System.out.println("아이디 찾기 결과 실패 : 입력한 이메일의 고객이 존재하지 않음");
+			resplist.add(0, null);
 			return resplist;
 
 		}else {
-			System.out.println("이메일 일치");
+			System.out.println("아이디 찾기 결과 성공 : ");
 			String dice = this.getRandomString();
 			System.out.println("랜덤문자열 : " + dice);
 
-			String id = mdto.getId();
+			String id = mdto.getId(); //입력한 이메일 정보를 가진 고객의 아이디를 가져온다.
 			resplist.add(0, dice);
 			resplist.add(1, id);
 
@@ -229,8 +228,8 @@ public class EmailController {
 					"	</h1>\r\n" + 
 					"	<p style=\"font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px;\">\r\n" + 
 					"		안녕하세요.<br>\r\n" + 
-					"		<맛집갔다갈래>에 아이디 찾기를 위해 필요한 이메일 인증메일을 보내드립니다.<br>\r\n" + 
-					"		"+ dice +"인증문자열을 인증란에 입력해주시길 바랍니다.<br>\r\n" + 
+					"		<맛집갔다갈래>에서 인증메일을 보내드립니다.<br>\r\n<br>" + 
+					"		인증코드 : <strong>"+ dice +"</strong><br>\r\n<br> 인증코드를 인증란에 입력해주시길 바랍니다.<br>\r\n" + 
 					"		감사합니다.\r\n" + 
 					"	</p>\r\n" + 
 					"<center>\r\n" + 
@@ -258,7 +257,7 @@ public class EmailController {
 				Message message = new MimeMessage(session);
 				message.setFrom(new InternetAddress("no-reply@eat-together.net"));
 				message.setRecipients(Message.RecipientType.TO,
-						InternetAddress.parse(account_email));
+						InternetAddress.parse(recipient));
 				message.setSubject(subject);
 				message.setContent(msg, "text/html; charset=utf-8");
 				Transport.send(message);
@@ -285,25 +284,20 @@ public class EmailController {
 		System.out.println("비밀번호 찾기용 입력한 이메일 : " + account_email);
 		System.out.println("비밀번호 찾기용 입력한 아이디 : " + inputId);
 
-		MemberDTO mdto = mservice.emailCheck(input_account_email);
+		MemberDTO mdto = mservice.emailCheckFor(inputId, input_account_email);
 
 		if(mdto == null) {
-			System.out.println("입력한 이메일과 동일한 회원정보가 존재하지 않음");
-			resp = "0";
-			return resp;
-
-		}else if(!(mdto.getId().contentEquals(inputId))) {
-			System.out.println("아이디와 인증된 이메일의 불일치");
-			resp = "0";
+			System.out.println("비밀번호 찾기 결과 실패  : 입력한 정보와 일치한 고객이 없음");
+			resp = "";
 			return resp;
 
 		}else {
-			System.out.println("아이디와 인증된 이메일 일치");
+			System.out.println("비밀번호 찾기 결과 성공 : ");
 			String dice = this.getRandomString();
 			resp = dice;
 			System.out.println("랜덤문자열 : " + dice);
 
-			String recipient = account_email;
+			String recipient = mdto.getAccount_email();
 			String subject = "맛집갔다갈래 비밀번호찾기 이메일입니다.";
 			String msg = "<html><head></head><body>\r\n" + 
 					"<div style=\"font-family: 'Apple SD Gothic Neo', 'sans-serif' !important; width: 540px; height: 600px; border-top: 4px solid {$point_color}; margin: 100px auto; padding: 30px 0; box-sizing: border-box;\">\r\n" + 
@@ -315,14 +309,15 @@ public class EmailController {
 					"	</h1>\r\n" + 
 					"	<p style=\"font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px;\">\r\n" + 
 					"		안녕하세요.<br>\r\n" + 
-					"		<맛집갔다갈래>에 비밀번호 찾기를 위해 필요한 이메일 인증메일을 보내드립니다.<br>\r\n" + 
-					"		"+ dice +"인증문자열을 인증란에 입력해주시길 바랍니다.<br>\r\n" + 
+					"		<맛집갔다갈래>에서 인증메일을 보내드립니다.<br>\r\n<br>" + 
+					"		인증코드 : <strong>"+ dice +"</strong><br>\r\n<br> 인증코드를 인증란에 입력해주시길 바랍니다.<br>\r\n" + 
 					"		감사합니다.\r\n" + 
 					"	</p>\r\n" + 
 					"<center>\r\n" + 
 					"<a href=\"https://eat-together.net\" target=\"blank\" class=\"myButton\">사이트에 접속하기</a>\r\n" + 
 					"</center>\r\n" + 
 					"<hr style=\"border: 0; width:500px; height: 0; border-top: 1px solid rgba(0, 0, 0, 0.1); border-bottom: 1px solid rgba(255, 255, 255, 0.3);\">";
+			
 			Properties props = new Properties();
 			props.put("mail.smtp.host", "smtp.daum.net");
 			props.put("mail.smtp.socketFactory.port", "465");
@@ -343,7 +338,7 @@ public class EmailController {
 				Message message = new MimeMessage(session);
 				message.setFrom(new InternetAddress("no-reply@eat-together.net"));
 				message.setRecipients(Message.RecipientType.TO,
-						InternetAddress.parse(account_email));
+						InternetAddress.parse(recipient));
 				message.setSubject(subject);
 				message.setContent(msg, "text/html; charset=utf-8");
 				Transport.send(message);
@@ -369,16 +364,18 @@ public class EmailController {
 		MemberDTO mdto1 = (MemberDTO) session.getAttribute("loginInfo");
 		String id = mdto1.getId();
 
+		String ori_account_email= mdto1.getAccount_email();
+		System.out.println("내 정보에 저장된 이메일 : " + ori_account_email);
 		String input_account_email = account_email;
-		System.out.println("비밀번호 찾기용 입력한 이메일 : " + account_email);
+		System.out.println("고객이 입력한 이메일 : " + input_account_email);
 
-		MemberDTO mdto2 = mservice.emailCheck(input_account_email);
+		//로그인한 아이디와 이메일이 일치하는 고객 찾기_20200717
+		MemberDTO mdto2 = mservice.emailCheckFor(id, input_account_email);
 
 		if(mdto2 == null) {
-			System.out.println("해당 이메일의 회원이 존재하지 않음");
-			resp = "0";
+			System.out.println("회원탈퇴 이메일 검증 결과 : 해당 이메일의 회원이 존재하지 않음");
+			resp = "";
 			return resp;
-
 		}else {
 			System.out.println("아이디와 이메일 일치");
 			String dice = this.getRandomString();
@@ -397,8 +394,8 @@ public class EmailController {
 					"	</h1>\r\n" + 
 					"	<p style=\"font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px;\">\r\n" + 
 					"		안녕하세요.<br>\r\n" + 
-					"		<맛집갔다갈래>에 회원탈퇴를 위해 필요한 이메일 인증메일을 보내드립니다.<br>\r\n" + 
-					"		"+ dice +"인증문자열을 인증란에 입력해주시길 바랍니다.<br>\r\n" + 
+					"		<맛집갔다갈래>에서 인증메일을 보내드립니다.<br>\r\n<br>" + 
+					"		인증코드 : <strong>"+ dice +"</strong><br>\r\n<br> 인증코드를 인증란에 입력해주시길 바랍니다.<br>\r\n" + 
 					"		감사합니다.\r\n" + 
 					"	</p>\r\n" + 
 					"<center>\r\n" + 
@@ -425,7 +422,7 @@ public class EmailController {
 				Message message = new MimeMessage(session);
 				message.setFrom(new InternetAddress("no-reply@eat-together.net"));
 				message.setRecipients(Message.RecipientType.TO,
-						InternetAddress.parse(account_email));
+						InternetAddress.parse(recipient));
 				message.setSubject(subject);
 				message.setContent(msg, "text/html; charset=utf-8");
 				Transport.send(message);

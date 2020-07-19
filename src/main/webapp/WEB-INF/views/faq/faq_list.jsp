@@ -10,7 +10,6 @@
 <link rel="stylesheet"
 	href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
 <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-<script src="https://kit.fontawesome.com/9f89dcc349.js"></script>
 <script
 	src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
 <script
@@ -35,7 +34,8 @@
 	href="/resources/css/index-css.css">
 <!-- header,footer용 css  -->
 <!-- ******************* -->
-<link rel="stylesheet" type="text/css" href="/resources/css/faq-css.css">
+<link rel="stylesheet" type="text/css"
+	href="/resources/css/faq-css.css?a">
 
 <script>
 	$(function() {
@@ -51,6 +51,19 @@
 			}
 			;
 		});
+		
+		$("#allBtn").on("click",function(){
+			location.href="/faq/list";
+		});
+		
+		$("#memBtn").on("click",function(){
+			location.href="/faq/searchByOption?option=mem";
+		});
+		
+		$("#howBtn").on("click",function(){
+			location.href="/faq/searchByOption?option=how";
+		});
+
 	});
 </script>
 </head>
@@ -70,9 +83,10 @@
 				<div class="col-12 mt-3 mb-3">
 					<div class="row">
 						<div class="col-12 col-sm-12">
-							<button type="button" class="btn btn-outline-primary">전체</button>
-							<button type="button" class="btn btn-outline-warning">회원/정보관련</button>
-							<button type="button" class="btn btn-outline-info">사이트이용관련</button>
+							<button type="button" id="allBtn" class="btn btn-primary btn-sm">전체</button>
+							<button type="button" id="memBtn"  class="btn btn-primary btn-sm">회원/정보관련</button>
+							<button type="button" id="howBtn" class="btn btn-primary btn-sm">사이트이용관련</button>
+							
 						</div>
 					</div>
 				</div>
@@ -87,7 +101,7 @@
 								<a class="collapsed" role="button" title=""
 									data-toggle="collapse" data-parent="#accordion"
 									href="#collapse${status.index}" aria-expanded="true"
-									aria-controls="collapse${status.index}"> ${i.title}  </a>
+									aria-controls="collapse${status.index}"> ${i.title} </a>
 							</h5>
 						</div>
 						<div id="collapse${status.index}" class="panel-collapse collapse"

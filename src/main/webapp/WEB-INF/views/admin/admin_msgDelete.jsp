@@ -63,8 +63,9 @@ function saveMsg(msg_seq) {
 										<tbody>
 											<tr align="center">
 												<th scope="col" colspan=2>#</th>
+												<th scope="col" colspan=2>보낸사람</th>
 												<th scope="col" colspan=2>받는사람</th>
-												<th scope="col" colspan=4>제목</th>
+												<th scope="col" colspan=2>제목</th>
 												<th scope="col" colspan=2>날짜</th>
 												<th scope="col" colspan=2>삭제</th>
 											</tr>
@@ -77,13 +78,12 @@ function saveMsg(msg_seq) {
 											<c:forEach var="i" items="${list}" varStatus="status">
 												<tr align="center">
 													<td colspan=2>${i.msg_seq}</td>
-
-
+													<td colspan=2>${i.msg_sender}</td>
 													<td colspan=2><c:choose>
 															<c:when test="${i.msg_receiver eq 'administrator'}">관리자</c:when>
 															<c:otherwise>${i.msg_receiver}</c:otherwise>
 														</c:choose></td>
-													<td colspan=4 class="msg_title" id="msg_title"><c:out value="${i.msg_title}" /></td>
+													<td colspan=2 class="msg_title" id="msg_title"><c:out value="${i.msg_title}" /></td>
 													<td colspan=2>${i.date}</td>
 													<td colspan=2>
 														<button type="button" class="btn btn-outline-dark"

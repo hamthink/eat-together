@@ -58,7 +58,7 @@
 				</tr>
 				<tr>
 					<td scope="col" colspan=9 rowspan=1>
-						<div style="width: 100%; height: 200px; overflow-y: auto;">
+						<div style="width: 305px; padding: 10px; word-break: break-all; resize: none; overflow-y:auto;  height: 200px;">
 							<c:out value="${msgView.msg_text}"></c:out>
 						</div>
 					</td>
@@ -77,6 +77,9 @@
 	<script>
 		$("#close").on("click", function() {
 			window.close();
+		})
+		$("#msgResponse").on("click",function(){
+			window.resizeTo(500,620);
 		})
 	</script>
 </body>

@@ -160,7 +160,7 @@
 					<div class="row">
 
 						<div class="col-sm-12">
-							<form id="form" action="/faq/writeProc" method="post">
+							<form id="form" action="/faq/modifyProc" method="post">
 								<div class="row my-2">
 									<div class="col-sm-2 text-center">카테고리</div>
 									<div class="col-sm-10">
@@ -175,6 +175,7 @@
 												value="how" id="category2"> <label
 												class="form-check-label" for="category2">사이트이용관련</label>
 										</div>
+										<input type="hidden" value="${contents.seq}" name="seq">
 										<input type="hidden" value="${contents.category}"
 											id="category_val">
 

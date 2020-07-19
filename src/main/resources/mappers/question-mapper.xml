@@ -12,7 +12,6 @@
 		and	msg_title like '%[1:1문의]%' and
 		receiver_del=0
 	</select>
-	
 	<!-- select문 -->
 	
 	<!-- 회원 페이지 관리자 list -->
@@ -33,10 +32,23 @@
 		msg_seq = #{value}
 	</select>
 	
-	<!-- 관리자 페이지 네비 카운트 -->
+	<!-- 관리자 페이지 전체 네비 카운트 -->
 	<select id="getAdminQCount" resultType="int">
 		select count (*) from msg
 		where msg_title like '%[1:1문의]%' and msg_sender != 'administrator' and sender_del=0
+	</select>
+	<!-- 답변 되지 않은 네비 카운트 -->
+	
+	<select id="getNoAnswerCount" resultType="int">
+	
+		select count (*) from msg
+		where msg_title like '%[1:1문의]%' and msg_sender != 'administrator' and sender_del=0 and msg_view &lt; 2
+
+	</select>
+	<!-- 답변 완료 된 네비 카운트 -->
+	<select id="getYesAnswerCount" resultType="int">
+		select count (*) from msg
+		where msg_title like '%[1:1문의]%' and msg_sender != 'administrator' and sender_del=0 and msg_view &gt; 1
 	</select>
 	
 	<!-- 답변에 view값 넣어주기 -->
@@ -52,9 +64,31 @@
 		msg_title like '%[1:1문의]%' and msg_sender != 'administrator'  and sender_del=0) where rnum between
 		#{start} and #{end}
 	</select>
+		<!-- 관리자 페이지 1:1문의 답변대기 -->
+	<select id="selectByNoAnswer" resultType="coma.spring.dto.QuestionDTO">
+		select * from(select
+		msg.*,row_number() over(order by msg_date desc)
+		rnum from msg where
+		msg_title like '%[1:1문의]%' and msg_sender != 'administrator'  and sender_del=0 and msg_view &lt; 2) where rnum between
+		#{start} and #{end}
+	</select>
+		<!-- 관리자 페이지 1:1문의 답변완료-->
+	<select id="selectByYesAnswer" resultType="coma.spring.dto.QuestionDTO">
+		select * from(select
+		msg.*,row_number() over(order by msg_date desc)
+		rnum from msg where
+		msg_title like '%[1:1문의]%' and msg_sender != 'administrator'  and sender_del=0 and msg_view &gt; 1) where rnum between
+		#{start} and #{end}
+	</select>
+	
+	
+	
+	
 	<insert id="QuestionAnswer">
 		insert into msg values(#{msg_seq},'administrator',#{msg_receiver},#{msg_title},#{msg_text},sysdate,#{msg_view},0,0)
 	</insert>
+	
+	
 	<insert id="insertQuestion">
 		insert into msg values(msg_seq.nextval,#{msg_sender},'administrator',#{msg_title},#{msg_text},sysdate,0,0,0)
 	</insert>

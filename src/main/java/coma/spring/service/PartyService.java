@@ -283,11 +283,8 @@ public class PartyService {
 	public PartyCountDTO getPartyCounts(String seq) {
 		return pdao.getPartyCounts(seq);
 	}
-
-//	// 태훈 모임 게시글 신고
-//	public int partyReport(int seq) {
-//		return pdao.partyReport(seq);
-//	}
+	
+	// 태훈 모임 게시글 신고
 	@Transactional("txManager")
 	public int partyReport(ReportDTO rdto) throws Exception{
 		rdao.newReport(rdto); // 신고 테이블 insert 문 
@@ -297,6 +294,14 @@ public class PartyService {
 	public int restartRecruit(String seq) throws Exception {
 		return pdao.restartRecruit(seq);
 
+	}
+	// 예지 - 모임글 관리 체크박스 삭제
+	public int deleteCheckList(String[] checkList) throws Exception{
+		List<String> list = new ArrayList<String>();
+		for(int a=0;a<checkList.length;a++) {
+			list.add(checkList[a]);
+		}
+		return pdao.deleteCheckList(list);
 	}
 }
 

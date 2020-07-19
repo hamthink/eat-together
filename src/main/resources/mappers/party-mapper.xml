@@ -81,26 +81,7 @@
 		select * from (select party.*, row_number() over(order by status desc, seq desc) as
 		rnum from party) where rnum between #{start} and #{end}
 	</select>
-	<!--by 태훈 상세 검색 -->
-	<!-- <select id="partySearch" resultType="coma.spring.dto.PartyDTO">
-		select * from party
-		<trim prefixOverrides="or" prefix="where">
-			<if test="address != ''"> parent_address like '%${address}%'</if>
-			<if test="gender != null"> or gender = '${gender}'</if>
-			<if test="ageList.size != 0"> or age like
-				<foreach collection="ageList" item="aa" open="" close="" separator="or age like">
-					'%${aa}%'
-				</foreach>
-			</if>
-			<if test="drinking != 2">or drinking = ${drinking}</if>
-			<if test="title != ''">or title like '%${title}%'</if>
-			<if test="writer != ''">or writer like '%${writer}%'</if>
-			<if test="content != ''">or content like '%${content}%'</if>
-			<if test="both != ''">or title like '%${both}%' or content like '%${both}%'</if>
-		</trim>
-		order by seq desc
-	</select> -->
-	<!--by 태훈 상세 검색 -->
+	<!--by 태훈 통합 검색 -->
 	<select id="partySearch" resultType="coma.spring.dto.PartyDTO">
 		select * from (select party.*, row_number() over(order by seq desc) as rnum from party
 		<trim prefixOverrides="or" prefix="where">
@@ -149,4 +130,12 @@
 	<update id="restartRecruit">
 		update party set status = 1 where seq = #{value}
 	</update>
+	<!-- 예지 - 모임글 관리 체크박스 삭제 -->
+	<delete id="deleteCheckList" parameterType="map">
+		delete from party where seq in
+		<foreach collection="list" item="item" index="index"
+			separator="," open="(" close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</delete>
 </mapper>

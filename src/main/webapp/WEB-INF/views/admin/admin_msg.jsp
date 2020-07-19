@@ -22,13 +22,13 @@ $(function(){
 		var word = $(this).val();
 		var wordSize = word.length;
 		console.log(wordSize);
-		if(wordSize <=2000){
+		if(wordSize <=1000){
 			$(".current").text(wordSize);
 		}else{
-			word=word.substr(0,2000);
+			word=word.substr(0,1000);
 			$(".current").text(word.length);
 			$(this).val(word);
-			alert("전체쪽지는 2000자 이하로 작성해주세요");
+			alert("전체쪽지는 1000자 이하로 작성해주세요");
 		}
 	})
 })
@@ -75,7 +75,7 @@ $(function(){
 											<tr align="center">
 												<th scope="col" colspan=4>제목</th>
 												<th scope="col" colspan=8>[공지] <input type="text"
-													id="msg_title" name="msg_title" style="width: 80%;"></th>
+													id="msg_title" name="msg_title" style="width: 80%;" maxlength="15"></th>
 											</tr>
 
 											<tr align="center">

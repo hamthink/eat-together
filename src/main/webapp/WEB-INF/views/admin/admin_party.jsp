@@ -16,8 +16,23 @@
 	src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/resources/css/admin.css">
 <title>Admin-모임글관리</title>
+<style>
+	#toOut{background-color:#fcbb42;border:1px solid #ffa500;}
+	#toOut:hover{background-color:#ffa500;}
+	.page-item{margin-left:2px;margin-right:2px;}
+    .page-link{
+    	line-height:1 !important;
+    	border-radius:20px !important;
+    	border:0px;
+    	color:#ff9900;
+    }
+    .page-item.active .page-link {
+	    background-color: #ffa500;
+	}
+    .page-item:hover .page-link{color:black;}
+    .sr-only{background-color:#ffa500;}
+</style>
 <script>
-
 
 function toDelete(seq){
 	var ask = confirm("정말 삭제하시겠습니까?");
@@ -25,6 +40,51 @@ function toDelete(seq){
 		location.href="/party/partydeleteByAdmin?seq="+seq;
 	}
 };
+$(function(){
+	$("#checkAll").click(function() {
+		if ($("#checkAll").is(":checked")) {
+			$(".checkboxes").prop("checked", true);
+		} else {
+			$(".checkboxes").prop("checked", false);
+		}
+	});
+	$(".checkboxes").click(function() {
+		var checklength = $("input:checkbox[name='checkbox[]']").length;
+		console.log(checklength);
+		console
+				.log($("input:checkbox[name='checkbox[]']:checked").length);
+
+		if ($("input:checkbox[name='checkbox[]']:checked").length == checklength) {
+			$("#checkAll").prop("checked", true);
+		} else {
+			$("#checkAll").prop("checked", false);
+		}
+	});
+	$("#toOut").on("click", function() {
+		var result = confirm("선택한 모임글을 정말로 삭제시키겠습니까?");
+		if (result) {
+			var arr = [];
+			$(".checkboxes:checked").each(function(i) {
+				arr.push($(this).val());
+			})
+			$.ajax({
+				url : "/party/partyDeleteCheckList",
+				type : "post",
+				data : {
+					seqs : JSON.stringify(arr)
+				}
+			}).done(function(resp) {
+				if(resp>0){
+					alert("선택한 모임글이 삭제 처리 되었습니다.");
+					$(this).closest("tr").remove();
+					location.reload();
+				}else{
+					alert("리뷰 삭제에 실패하였습니다.");
+				}
+			})
+		}
+	})	
+})
 
 		
 
@@ -45,13 +105,17 @@ function toDelete(seq){
 				<div class="row">
 					<div class="col-12 col-sm-12 mt-3">
 						<form action="/admin/partyByOption" method="post">
-							<div class="form-group">
-								<label for="partyByOption">조건정렬</label> <select
-									class="form-control" id="partyByOption" name=option>
-									<option value="meetdate">모임일</option>
-									<option value="report">신고수</option>
-								</select><br>
-								<button type="submit" class="btn btn-dark">검색</button>
+							<div class="row form-group position-relative">
+								<div class="col-10 p-0">
+									<label for="partyByOption">조건정렬</label> <select
+										class="form-control" id="partyByOption" name=option>
+										<option value="meetdate">모임일</option>
+										<option value="report">신고수</option>
+									</select>
+								</div>
+								<div class="col-2 p-0 b-0 position-absolute" style="bottom:0px;right:0px;">
+									<button type="submit" class="btn btn-dark align-middle" style="width:100%;">검색</button>
+								</div>
 							</div>
 						</form>
 					</div>
@@ -64,7 +128,7 @@ function toDelete(seq){
 								<table class="table border-bottom border-dark">
 									<thead class="thead-dark">
 										<tr>
-											<th scope="col" class="text-center">글번호</th>
+											<th scope="col" class="text-center"></th>
 
 											<th scope="col">글제목</th>
 											<th scope="col">모임장소</th>
@@ -72,15 +136,18 @@ function toDelete(seq){
 											<th scope="col">모임일</th>
 											<th scope="col">모임상태</th>
 											<th scope="col">신고수</th>
-											<th scope="col">삭제</th>
+											<th scope="col" class="text-center">
+												<label><input type="checkbox" id="checkAll" class="checkAll"><span class="label label-primary admin_text"></span>
+												</label>
+											<button class="btn-sm btn-danger admin_text" id="toOut">삭제</button></th>
 										</tr>
 									</thead>
 									<tbody>
 										<c:forEach var="i" items="${list}" varStatus="status">
 											<tr>
-												<th scope="row" class="text-center">${status.index}</th>
+												<th scope="row" class="text-center">${i.seq}</th>
 
-												<td><a href="/admin/admin_party_content?seq=${i.seq}">${i.title}</a>
+												<td  style="max-width: 150px;" class="text-truncate"><a href="/admin/admin_party_content?seq=${i.seq}" style="max-width: 150px;">${i.title}</a>
 
 
 												</td>
@@ -90,8 +157,7 @@ function toDelete(seq){
 												<td class="text-center"><c:if test="${i.status eq 1}">진행중</c:if> <c:if
 														test="${i.status eq 0}">종료</c:if></td>
 												<td>${i.report}</td>
-												<td><button type="button" id="toDelete${i.seq}"
-														onclick="toDelete(${i.seq})" class="btn btn-danger">삭제</button></td>
+												<td class=" text-center"><input type="checkbox" name="checkbox[]" value="${i.seq}" class="checkboxes"></td>
 											</tr>
 										</c:forEach>
 									</tbody>

@@ -2,11 +2,12 @@
 
 
    <!-- footer --> 
-        <div class="container-fluid ">
+        <div class="container-fluid fotbtn">
             <div class="row">
                 <div class="col-sm-12 footer pt-4">
                     <p class="footer-menu">
                         <a href="/info/toIntroduction">사이트 소개</a> | 
+                         <a href="/info/aboutUs">제작팀 소개</a> | 
                         	<a href="/info/toPolicy">이용약관</a> | 
                         	<a href="/info/toPrivacy">개인정보 처리방침</a> | 
                         	<a href="/info/toLocationPolicy">위치기반 서비스 이용약관</a>

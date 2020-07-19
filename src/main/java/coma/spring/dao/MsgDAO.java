@@ -72,12 +72,12 @@ public class MsgDAO {
 		return mybatis.update("msg.view",msg_seq);
 	}
 	//보낸사람삭제
-	public int sender_del(int msg_seq)throws Exception{
-		return mybatis.update("msg.sender_del",msg_seq);
+	public int sender_del(List<String> list)throws Exception{
+		return mybatis.update("msg.sender_del",list);
 	}
 	//받는사람삭제
-	public int receiver_del(int msg_seq)throws Exception{
-		return mybatis.update("msg.receiver_del",msg_seq);
+	public int receiver_del(List<String> list)throws Exception{
+		return mybatis.update("msg.receiver_del",list);
 	}
 	//새로운쪽지확인
 	public int newmsg(String msg_receiver)throws Exception{
@@ -256,20 +256,20 @@ public class MsgDAO {
 			StringBuilder sb = new StringBuilder("<nav aria-label='Page navigation'><ul class='pagination justify-content-center'>");
 			
 			if(needPrev) {
-				sb.append("<li class='page-item'><a class='page-link' href='msg_list_receiver?msgcpage="+(startNav-1)+"' id='prevPage' tabindex='-1' aria-disabled='true'>Previous</a></li>");
+				sb.append("<li class='page-item'><a class='page-link' href='msg_list_receiver?msgRcpage="+(startNav-1)+"' id='prevPage' tabindex='-1' aria-disabled='true'>Previous</a></li>");
 			}
 
 			for(int i=startNav; i<=endNav; i++) {
 				if(currentPage == i) {
-					sb.append("<li class='page-item active' aria-current='page'><a class='page-link' href='msg_list_receiver?msgcpage="+i+"'>"+i+"<span class=sr-only>(current)</span></a></li>");
+					sb.append("<li class='page-item active' aria-current='page'><a class='page-link' href='msg_list_receiver?msgRcpage="+i+"'>"+i+"<span class=sr-only>(current)</span></a></li>");
 					//sb.append("<li class='page-item active' aria-current='page'>"+i+"<span class='sr-only'>(current)</span></li>");
 				}else {
-					sb.append("<li class='page-item'><a class='page-link' href='msg_list_receiver?msgcpage="+i+"'>"+i+"</a></li>");
+					sb.append("<li class='page-item'><a class='page-link' href='msg_list_receiver?msgRcpage="+i+"'>"+i+"</a></li>");
 				}
 			}
 
 			if(needNext) {
-				sb.append("<li class=page-item><a class=page-link href='msg_list_receiver?msgcpage="+(endNav+1)+"' id='nextPage'>다음</a></li> ");
+				sb.append("<li class=page-item><a class=page-link href='msg_list_receiver?msgRcpage="+(endNav+1)+"' id='nextPage'>다음</a></li> ");
 			}		
 			sb.append("</ul></nav>");
 			return sb.toString();

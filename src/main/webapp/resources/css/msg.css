@@ -1,10 +1,11 @@
 @charset "UTF-8";
 
-#orange{
-	background-color:#FF9436;
-	color:white;
+#orange {
+	background-color: #FF9436;
+	color: white;
 }
-.btn-orange{
-	background-color:orange;
-	color:white;
+
+.btn-orange {
+	background-color: orange;
+	color: white;
 }

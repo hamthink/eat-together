@@ -1,5 +1,6 @@
 package coma.spring.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,14 +57,21 @@ public class MsgService {
 		return result;
 	}
 	//받은사람삭제
-	public int receiver_del(int msg_seq)throws Exception{
-		int result = msgdao.receiver_del(msg_seq);
-		return result;
+	public int receiver_del(String[] checkList)throws Exception{
+
+		List<String> list = new ArrayList<String>();
+		for(int a=0;a<checkList.length;a++) {
+			list.add(checkList[a]);
+		}
+		return msgdao.receiver_del(list);
 	}
 	//보낸사람삭제
-	public int sender_del(int msg_seq)throws Exception{
-		int result =msgdao.sender_del(msg_seq);
-		return result;
+	public int sender_del(String[] checkList)throws Exception{
+		List<String> list = new ArrayList<String>();
+		for(int a=0;a<checkList.length;a++) {
+			list.add(checkList[a]);
+		}
+		return msgdao.sender_del(list);
 	}
 	//새로운쪽지
 	public int newmsg(String msg_receiver)throws Exception{

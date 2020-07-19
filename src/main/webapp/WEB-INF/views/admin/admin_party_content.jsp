@@ -77,14 +77,12 @@ $(document).ready(function(){
 });
 
 	$(function() {
-		$("#partyModify").on("click", function() {
-			location.href = "/party/partymodify?seq=${con.seq}";
-		});
+		
 
 		$("#partyDelete").on("click", function() {
 			var ask = confirm("삭제 후에는 복구할 수 없습니다.\n 정말 삭제하겠습니까?");
 			if (ask) {
-				location.href = "/party/partydelete?seq=${con.seq}";
+				location.href = "/admin/partydelete?seq=${con.seq}";
 			}
 		});
 
@@ -103,7 +101,7 @@ $(document).ready(function(){
 		$("#toStopRecruit").on("click",function(){
 			var ask = confirm("모집종료 후에는 되돌릴 수 없습니다. \n 정말 모집을 종료하시겠습니까?");
 			if (ask) {
-			location.href= "/party/stopRecruit?seq=${con.seq}";
+			location.href= "/admin/stopRecruit?seq=${con.seq}";
 			}
 		});
 
@@ -271,9 +269,7 @@ function toDelete(seq){
 						<div class="row mb-2">
 							<div class="col-12">
 
-								<c:if test="${sessionScope.loginInfo.id eq 'administrator'}">
-									<button type="button" id="toChatroom" class="btn btn-primary">채팅방으로
-										이동</button>
+								<c:if test="${sessionScope.loginInfo.id eq 'administrator' && con.status eq '1'}">
 									<button type="button" id="toStopRecruit" class="btn btn-dark">모집
 										종료시키기</button>
 								</c:if>

@@ -138,7 +138,6 @@ public class PartyDTO {
 	public String getsDate() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	    String date = sdf.format(meetdate);
-	    System.out.println(date);
 		return date;
 	}
 	

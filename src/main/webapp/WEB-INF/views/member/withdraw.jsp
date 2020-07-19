@@ -68,15 +68,14 @@
 						name="account_email" placeholder="ex)eat-together@naver.com">
 					<input type=button id=mail value="인증하기" class="btn btn-warning">
 					<button type="button" class="btn btn-dark withdraw_text" id="back">되돌아가기</button>
-					<br>
-					<br>
+					<br> <br>
 					<div id=mail_div style="display: none;">
 						인증번호 : <input type=text id=mail_text>
 						<button type=button id=mail_accept class="btn btn-light">인증</button>
 					</div>
-					<div id=withdraw_result style="display: none;">
+					<div id=withdraw_result style="display: none;"><br>
 						<button type=button class="btn btn-light withdraw_text"
-							id="withdrawBtn">탈퇴하기</button>
+							id="withdrawBtn">탈퇴하기</button><br>
 					</div>
 				</div>
 
@@ -87,6 +86,11 @@
 
 	<script>
 	window.onload = function() {
+		// by 지은, 카카오톡으로 로그인한 경우 accoun_email인증이 안되었기 때문에 mypage로 이동시킨다_20200717	
+		if ("${loginInfo.account_email}" == "need@eat-together.com") {
+			alert("이메일 인증 및 개인정보 수정 후 사이트를 이용해주시길 바랍니다.");
+			location.replace("/member/mypage_myinfo");
+		}
 
 		var code;
 		//메일 인증 
@@ -97,7 +101,7 @@
 				$("#account_email").focus();
 			} else {
 				$.ajax({
-					url : "/mail/mailSending",
+					url : "/mail/mailSendingForOut",
 					type : "post",
 					data : {
 						account_email : $("#account_email").val()
@@ -109,8 +113,9 @@
 						alert("인증메일이 발송되었습니다.");
 						$("#mail_div").css("display", "block");
 
-					} else {
-						alert("이미 사용중인 이메일입니다.");
+					}else {
+						
+						alert("이메일 정보가 일치하지 않습니다");
 						$("#mail_text").val("");
 						$("#mail_text").focus();
 					}
@@ -126,6 +131,8 @@
 				$("#mail_text").css("color", "blue");
 				$("#mail_text").val("인증에 성공하였습니다.");
 				$("#mail_text").attr("readonly", true);
+				
+				$("#withdraw_result").css("display", "block");
 			} else if ($("#mail_text").val == "") {
 				alert("인증문자열을 입력해주세요.");
 				$("#mail_text").focus();

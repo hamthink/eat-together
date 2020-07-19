@@ -1,5 +1,6 @@
 package coma.spring.dao;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,12 +57,20 @@ public class ReviewDAO {
 	}
 	// 태훈 top5 소개 리뷰 뽑기
 	public List<TopFiveStoreDTO> getReview(List<MapDTO> top){
-		Map<String, Integer> param = new HashMap<>();
+//		Map<String, Integer> param = new HashMap<>();
+//		for (int i=0; i<top.size(); i++) {
+//			param.put("top"+(i+1), top.get(i).getSeq());	
+//		}
+		List<Integer> list = new ArrayList<>();
 		for (int i=0; i<top.size(); i++) {
-			param.put("top"+(i+1), top.get(i).getSeq());	
+			list.add(top.get(i).getSeq());	
 		}
-		System.out.println(param);
-		return mybatis.selectList("Review.top5review", param);
+		System.out.println(list);
+		return mybatis.selectList("Review.top5review", list);
+	}
+	
+	public String getStoreName(int parent_seq) {
+		return mybatis.selectOne("Review.getStoreName", parent_seq);
 	}
 	// 체크박스 리뷰 삭제하기
 	public int delete(List<String> list) {

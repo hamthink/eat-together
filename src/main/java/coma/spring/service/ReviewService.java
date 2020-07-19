@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import coma.spring.dao.MapDAO;
+import coma.spring.dao.MemberDAO;
 import coma.spring.dao.ReportDAO;
 import coma.spring.dao.ReviewDAO;
 import coma.spring.dao.ReviewFileDAO;
@@ -30,6 +31,8 @@ public class ReviewService {
 	private MapDAO mapdao;
 	@Autowired
 	private ReviewFileDAO rfdao;
+	@Autowired
+	private MemberDAO mdao;
 	@Transactional("txManager")
 	public void write(ReviewDTO rdto) throws Exception{
 		rvdao.insert(rdto);
@@ -97,7 +100,6 @@ public class ReviewService {
 			}else {
 				sb.append("<li class='page-item'><a class='page-link' href='sortReview?cpage="+i+"'>"+i+"</a></li>");
 			}
-//			sb.append("<li class='page-item'><a class='page-link' href='sortReview?cpage="+i+"'>" + i + "</a></li>");
 		}
 		if(needNext) {sb.append("<li class='page-item'><a class='page-link' href='sortReview?cpage="+(endNavi+1)+"'><i class=\"fas fa-chevron-right\"></i></a></li>");}
 		return sb.toString();
@@ -176,5 +178,8 @@ public class ReviewService {
 			list.add(checkList[a]);
 		}
 		return rvdao.delete(list);
+	}
+	public String getStorename(int parent_seq) {
+		return rvdao.getStoreName(parent_seq);
 	}
 }

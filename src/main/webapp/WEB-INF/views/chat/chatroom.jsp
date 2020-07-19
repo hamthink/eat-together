@@ -18,8 +18,11 @@
 		var userenter = true;
 		var viewed = 0;
 		$(".input-area").empty();
-		//var ws = new WebSocket("wss://eat-together.net/chat/chatroom")
-		var ws = new WebSocket("ws://192.168.0.8/chat/chatroom")
+
+
+		var ws = new WebSocket("wss://eat-together.net/chat/chatroom")
+		//var ws = new WebSocket("ws://192.168.60.28/chat/chatroom")
+
 		ws.onmessage = function(e) {
 			var some = e.data.split(":");
 			if (some[0] == "z8qTA0JCIruhIhmCAQyHRBpIqUKjS3VBT2oJndv61od6") {
@@ -127,6 +130,13 @@
 				key.keyCode = 0;
 				key.returnValue = false; 
 		    }
+			var word = $(this).text();
+			var wordSize = word.length;
+			if(wordSize >1000){
+				word=word.substr(0,1000);
+				$(this).val(word);
+				alert("메세지는 1000자 이하로 작성해주세요");
+			}
 			if (key.keyCode == 13) {
 				var text = $(".input-area").text();
 				if (text.trim() != "") {

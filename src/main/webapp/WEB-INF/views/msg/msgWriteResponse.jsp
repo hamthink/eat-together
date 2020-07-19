@@ -24,21 +24,20 @@
 
 <script>
 	$(function() {
-		$(".container").find("#msg_text").keyup(function(){
+		$(".container").find("#msg_text").keyup(function() {
 			var word = $(this).val();
 			var wordSize = word.length;
 			console.log(wordSize);
-			if(wordSize <=2000){
+			if (wordSize <= 1000) {
 				$(".current").text(wordSize);
-			}else{
-				word=word.substr(0,2000);
+			} else {
+				word = word.substr(0, 1000);
 				$(".current").text(word.length);
 				$(this).val(word);
-				alert("쪽지는 2000자 이하로 작성해주세요");
+				alert("쪽지는 1000자 이하로 작성해주세요");
 			}
 		})
-		
-		
+
 		$("#idcheck").on("click", function() {
 			var id = $("#msg_receiver").val();
 			$.ajax({
@@ -77,26 +76,26 @@
 					<tr align="center">
 						<th scope="col" colspan=4>닉네임</th>
 						<td scope="col" colspan=8>
-						<div id="msg_receiver">${msg_receiver}</div>
-						<input type="hidden" id="hidden" name="msg_receiver">
+							<div id="msg_receiver">${msg_receiver}</div> <input type="hidden"
+							id="hidden" name="msg_receiver">
 					</tr>
 					<tr align="center">
 						<th scope="col" colspan=4>제목</th>
 						<td scope="col" colspan=8><input type="text" name="msg_title"
-							id="msg_title" style="width: 100%;"></td>
+							id="msg_title" style="width: 100%;" maxlength="15"
+							placeholder="최대 15자"></td>
 					</tr>
 					<tr align="center">
 						<th scope="col" colspan=12>내용</th>
 					</tr>
 					<tr align="center">
 						<td scope="col" colspan=12><textarea placeholder="내용을 입력해주세요"
-								style="width: 100%; padding: 10px; word-break: keep-all; height: 180px;"
+								style="width: 100%; padding: 10px; word-break: keep-all; height: 180px; resize: none;"
 								name="msg_text" id="msg_text"></textarea></td>
 					</tr>
 					<tr>
-					<td scope="col" colspan=12 id="wordcheck" align="right">
-						<span class="current">0</span>/2000자
-						</td>
+						<td scope="col" colspan=12 id="wordcheck" align="right"><span
+							class="current">0</span>/1000자</td>
 					</tr>
 					<tr align="center">
 						<td scope="col" colspan=12>
@@ -114,12 +113,12 @@
 		})
 
 		$("#submit").on("click", function() {
-			var msg_receiver=$("#msg_receiver").text();
+			var msg_receiver = $("#msg_receiver").text();
 			console.log(msg_receiver);
 			$("#hidden").val(msg_receiver);
-			
+
 			if ($("#msg_title").val() != "") {
-				if ($("msg_text").val() != "") {
+				if ($("#msg_text").val() != "") {
 					return true;
 				} else {
 					alert("내용을 입력하세요");
@@ -129,7 +128,7 @@
 				alert("제목을 입력하세요");
 				return false;
 			}
-			
+
 		})
 	</script>
 </body>

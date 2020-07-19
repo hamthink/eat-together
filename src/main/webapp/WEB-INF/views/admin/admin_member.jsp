@@ -25,9 +25,9 @@
 	<div class="container-fluid mx-0 px-0 admin_text">
 		<div class="row mx-0">
 
-			<div class="col-3 mx-0 px-0"><jsp:include
+			<div class="col-2 mx-0 px-0"><jsp:include
 					page="/WEB-INF/views/include/admin_sidebar.jsp" /></div>
-			<div class="col-9">
+			<div class="col-10 px-5">
 				<div class="row">
 					<div class="col-12 col-sm-12 mt-3">
 						<h2 class="admin-h2">회원관리</h2>
@@ -99,7 +99,6 @@
 							<div class="col-6">${navi}</div>
 							<div class="col-4">
 								<c:if test="${sessionScope.loginInfo.id eq 'administrator'}">
-									<button class="btn btn-primary admin_text" id="toWriteBtn">글쓰기</button>
 									<button class="btn btn-danger admin_text" id="toOut">탈퇴</button>
 									<label><input type="checkbox" id="checkAll"
 										class="checkAll"> <span class="label label-primary admin_text">전체선택</span>

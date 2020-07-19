@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MemberReport">
+	<insert id="memReport">
+		insert into member_report values(member_report_seq.nextval,#{id},#{report_id},#{title},#{content},sysdate,0)	
+	</insert>
+	<select id="getseq" resultType="int">
+		select member_report_seq.nextval from dual
+	</select>
+	<update id="confirmReport">
+		update member_report set status=1 where seq = #{seq}
+	</update>
+	<select id="duplCheck" resultType="int">
+		select count(*) from member_report where id = #{id} and report_id = #{report_id}
+	</select>
+	
+	<select id="selectById" resultType="coma.spring.dto.MemberReportDTO">
+		select * from member_report where id = #{id}
+	</select>
+</mapper>

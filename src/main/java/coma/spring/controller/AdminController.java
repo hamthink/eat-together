@@ -21,13 +21,17 @@ import coma.spring.dto.MsgDTO;
 import coma.spring.dto.PartyCountDTO;
 import coma.spring.dto.PartyDTO;
 import coma.spring.dto.QuestionDTO;
+import coma.spring.dto.ReportDTO;
 import coma.spring.dto.ReviewDTO;
 import coma.spring.service.AdminService;
 import coma.spring.service.FaqService;
+import coma.spring.service.MemberService;
 import coma.spring.service.MsgService;
 import coma.spring.service.PartyService;
 import coma.spring.service.QuestionService;
+import coma.spring.service.ReportService;
 import coma.spring.service.ReviewService;
+import coma.spring.statics.Configuration;
 
 
 @Controller
@@ -48,6 +52,7 @@ public class AdminController {
 
 	@Autowired
 	private MsgService msgservice;
+	
 
 	@Autowired
 	FaqService fservice;
@@ -55,6 +60,18 @@ public class AdminController {
 	@Autowired
 	private ReviewService rservice;
 
+	@Autowired
+	private ReportService reportservice;
+	
+	@Autowired
+	private MemberService mservice;
+
+	@ExceptionHandler
+	public String exceptionHandler(NullPointerException npe) {
+		npe.printStackTrace();
+		System.out.println("NullPointerException Handler : 에러가 발생하였습니다.");
+		return "member/loginview";
+	}
 
 	@RequestMapping("toAdmin")
 	public String toAdmin() {
@@ -151,7 +168,7 @@ public class AdminController {
 			}
 
 			List<FaqDTO> list = fservice.selectByPage(cpage);
-			String navi = fservice.navi(cpage);
+			String navi = aservice.faqnavi(cpage);
 
 			request.setAttribute("list", list);
 			request.setAttribute("navi", navi);
@@ -161,6 +178,9 @@ public class AdminController {
 			return "/error/adminpermission";
 		}
 	}
+	
+	
+	
 
 	//수지 모임 게시물 출력하기_20200712
 	@RequestMapping("toAdmin_party")
@@ -186,8 +206,28 @@ public class AdminController {
 			return "/error/adminpermission";
 		}
 	}
+	
+	// 수지 모임 삭제
+	@RequestMapping("partydelete")
+	public String partydelete(String seq)  throws Exception {
+		pservice.delete(seq);
+		return "redirect:/admin/toAdmin_party";
+	}
+	
+	// 수지 모집종료 기능
+	@RequestMapping("stopRecruit")
+	public String stopRecruit(String seq) throws Exception {
+		MemberDTO loginInfo = (MemberDTO)session.getAttribute("loginInfo");
+		String adminCheck = loginInfo.getId();
+		if(adminCheck.contentEquals("administrator")) {
+		pservice.stopRecruit(seq);
+		return "redirect:/admin/admin_party_content?seq="+seq;
+		}else {
+			return "/error/adminpermission";
+		}
+	}
 
-	//by 수지, 회원정보 옵션 검색하기
+	//by 수지, 파티 옵션 검색하기
 	@RequestMapping("partyByOption")
 	public ModelAndView partyByOption(HttpServletRequest request)throws Exception {
 		ModelAndView mav = new ModelAndView();
@@ -272,8 +312,8 @@ public class AdminController {
 	}
 
 
-	//1:1문의 Admin 유승
 
+	//1:1문의 Admin 유승	
 	@RequestMapping("questionViewAdmin")
 	public String QuestionViewAdmin(HttpServletRequest request,int msg_seq)throws Exception{
 		QuestionDTO qdto = qservice.selectBySeq(msg_seq);
@@ -293,30 +333,87 @@ public class AdminController {
 		}
 	}
 
-
+	
 	//관리자 페이지 1:1문의 리스트
 	@RequestMapping("AdminQuestion_list")
 	public String AdminQuestion_list(HttpServletRequest request)throws Exception{
 		MemberDTO mdto = (MemberDTO) session.getAttribute("loginInfo");
-		if(session.getAttribute("Aqcpage")==null) {
-			session.setAttribute("Aqcpage", 1);
+		Object option;
+		if(request.getParameter("optionQ")!=null) {
+			option = request.getParameter("optionQ");
+			session.setAttribute("optionQ", option);
+		}else {
+			option = session.getAttribute("optionQ");
+			session.setAttribute("optionQ", "all");
 		}
-		try {
-			session.setAttribute("Aqcpage", Integer.parseInt(request.getParameter("Aqcpage")));
-		}catch(Exception e) {}
-		String Id=mdto.getId();
-		if(Id.contentEquals("administrator")) {
-			int Aqcpage = (int)session.getAttribute("Aqcpage");
-			List<QuestionDTO> qdto = qservice.selectByAdminQ(Aqcpage);
-			String navi = qservice.AdminQuestionNavi(Aqcpage);
+		if(option.equals("all")||option.equals(null)) {
+			if(session.getAttribute("Aqcpage")==null) {
+				session.setAttribute("Aqcpage", 1);
+			}
+			try {
+				session.setAttribute("Aqcpage", Integer.parseInt(request.getParameter("Aqcpage")));
+			}catch(Exception e) {}
 
-			request.setAttribute("navi", navi);
-			request.setAttribute("list", qdto);
+			String Id=mdto.getId();
 
-			return "/admin/admin_question_list";
+			if(Id.contentEquals("administrator")) {
+				int Aqcpage = (int)session.getAttribute("Aqcpage");
+				List<QuestionDTO> qdto = qservice.selectByAdminQ(Aqcpage);
+				String navi = qservice.AdminQuestionNavi(Aqcpage);
+
+				request.setAttribute("navi", navi);
+				request.setAttribute("list", qdto);
+				session.setAttribute("optionQ", "all");
+				return "/admin/admin_question_list";
+			}else {
+				return "error";
+			}
+		}else if(option.equals("noAnswer")){
+			if(session.getAttribute("ANcpage")==null) {
+				session.setAttribute("ANcpage", 1);
+			}
+			try {
+				session.setAttribute("ANcpage", Integer.parseInt(request.getParameter("ANcpage")));
+			}catch(Exception e) {}
+			String Id=mdto.getId();
+
+			if(Id.contentEquals("administrator")) {
+				int ANcpage = (int)session.getAttribute("ANcpage");
+				List<QuestionDTO> qdto = qservice.selectByNoAnswer(ANcpage);
+				String navi = qservice.AdminNoAnswerNavi(ANcpage);
+
+				request.setAttribute("navi", navi);
+				request.setAttribute("list", qdto);
+				session.setAttribute("optionQ", "noAnswer");
+				return "/admin/admin_question_list";
+			}else {
+				return "error";
+			}
+		}else if(option.equals("yesAnswer")){
+			if(session.getAttribute("AYcpage")==null) {
+				session.setAttribute("AYcpage", 1);
+			}
+			try {
+				session.setAttribute("AYcpage", Integer.parseInt(request.getParameter("AYcpage")));
+			}catch(Exception e) {}
+			String Id=mdto.getId();
+
+			if(Id.contentEquals("administrator")) {
+				int AYcpage = (int)session.getAttribute("AYcpage");
+				List<QuestionDTO> qdto = qservice.selectByYesAnswer(AYcpage);
+				String navi = qservice.AdminYesAnswerNavi(AYcpage);
+
+				request.setAttribute("navi", navi);
+				request.setAttribute("list", qdto);
+				session.setAttribute("optionQ", "yesAnswer");
+				return "/admin/admin_question_list";
+			}else {
+				return "error";
+			}
 		}else {
 			return "error";
 		}
+
 
 	}
 	//1:1문의 답변페이지
@@ -337,6 +434,7 @@ public class AdminController {
 			int answerSeq= qservice.getNextVal();
 			qdto.setMsg_title("[1:1답변]"+qdto.getMsg_title());
 			qdto.setMsg_seq(answerSeq);
+			System.out.println("답변 내용 : "+qdto.getMsg_text());
 			int result = qservice.QuestionAnswer(qdto);
 			if(result==1) {
 				System.out.println(qdto.getMsg_view()+"번의 게시글에 대한 답변");
@@ -371,7 +469,6 @@ public class AdminController {
 		request.setAttribute("result",result);
 		return "/admin/admin_msgResult";
 	}
-
 
 	//관리자 받은쪽지함
 	@RequestMapping("admin_msgSend")
@@ -446,30 +543,74 @@ public class AdminController {
 		int result = aservice.saveMsg(msg_seq);
 		return "redirect:admin_msgDelete";
 	}
-	//받은쪽지함 삭제
-	@RequestMapping("msgReceiverDel")
-	public String ReceiverDel(int msg_seq)throws Exception{
-		int result = msgservice.receiver_del(msg_seq);
-		return "redirect:admin_msgSend";
-	}
 
-	//보낸쪽지함 삭제
-	@RequestMapping("msgSenderDel")
-	public String SenderDel(int msg_seq)throws Exception{
-		System.out.println(msg_seq);
-		int result = msgservice.sender_del(msg_seq);
-		return "redirect:admin_msgReceive";
+
+
+	// 태훈 신고 리스트 출력하기 
+	@RequestMapping("toAdmin_report")
+	public String toAdmin_report(HttpServletRequest request)  throws Exception {
+		MemberDTO loginInfo = (MemberDTO)session.getAttribute("loginInfo");
+		String adminCheck = loginInfo.getId();
+		
+		if(adminCheck.contentEquals("administrator")) {
+
+			int cpage=1;
+			try {
+				cpage = Integer.parseInt(request.getParameter("cpage"));
+			}catch(Exception e) {
+
+			}
+
+			List<ReportDTO> list = aservice.reportList(cpage);
+			String navi = aservice.getReportNavi(cpage);
+
+			request.setAttribute("list", list);
+			request.setAttribute("navi", navi);
+			return "/admin/admin_report";
+		}
+		else {
+			return "/error/adminpermission";
+		}
+	}
+	// 신고 상세 내용 불러오기
+	@ResponseBody
+	@RequestMapping(value="admin_reportContent" ,produces="application/json;charset=utf8")
+	public String getReportContent(int seq)  throws Exception {
+
+		ReportDTO rdto = aservice.getReportContent(seq);
+		Gson gson = new Gson();
+		return gson.toJson(rdto);
+	}
+	// 신고 카테고리 리스트
+	@RequestMapping("Category_list")
+	public String Category_list(HttpServletRequest request)throws Exception{
+
+		if(session.getAttribute("cpage")==null) {
+			session.setAttribute("cpage", 1);
+		}
+		try { 
+			session.setAttribute("cpage", Integer.parseInt(request.getParameter("cpage")));
+		} catch (Exception e) {}
+		
+		
+		if(session.getAttribute("category")==null) {
+			session.setAttribute("category", 1);
+		}
+		try { 
+			session.setAttribute("category", Integer.parseInt(request.getParameter("category")));
+		} catch (Exception e) {}
+		
+		int cpage=(int)session.getAttribute("cpage");
+		int category=(int)session.getAttribute("category");
+		
+		List<ReportDTO> rdto = reportservice.selectByCategory(cpage, category);
+		String navi = reportservice.CategoryNavi(cpage, category);
+
+		request.setAttribute("navi", navi);
+		request.setAttribute("list", rdto);
+		return "/admin/admin_report";
 	}
 	
-	//1:1문의  삭제
-	@RequestMapping("AdminQuestionDel")
-	public String AdminQuestionDel(int msg_seq)throws Exception{
-		System.out.println(msg_seq);
-		int result = msgservice.sender_del(msg_seq);
-		return "redirect:AdminQuestion_list";
-	}
-
-
 	
 }
 

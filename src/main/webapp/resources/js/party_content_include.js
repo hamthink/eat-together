@@ -1,8 +1,7 @@
-
 /********************************* 채팅방으로 이동 ************************************/
 function send_msg(){
 	var option = "width = 500, height = 550, top = 100, left = 200, scrollbars=no"
-	var target=	$(".party_writer").html();	
+	var target=	$("#party_writer").val();	
 	//var target=${con.writer};
 	window.open("/msg/msgResponse?msg_receiver="+target,target,option);
 };
@@ -21,10 +20,13 @@ function partyReport(num){
 	//var writer = $(".party_writer").html();
 	//var report_id = writer.substring(6,writer.length);
 	var report_id = $("#party_writer").val();
+	var title = $("#party_title").val();
+	var content = $(".party_content").html();
+	
 	console.log("신고 시작 : "+ report_id);
 	$.ajax({
 		url:"/party/party_report",
-		data : { seq : num, report_id : report_id},
+		data : { seq : num, report_id : report_id , title : title , content : content},
 		success : function(result) {
 			if (result == 1){ 
 				alert("신고가 정상적으로 접수되었습니다.");	
@@ -47,7 +49,7 @@ function partyReport(num){
 
 /********************************* 채팅방으로 이동 ************************************/
 
-/*****************************  수지 party content 스크립 ***********************************************/
+/*****************************  party content 스크립 ***********************************************/
 $(document).ready(function(){
 	//var stime = "${con.sTime}";
 	var stime = $("#party_time").val();
