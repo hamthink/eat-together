@@ -76,4 +76,10 @@ public class ReviewDAO {
 	public int delete(List<String> list) {
 		return mybatis.delete("Review.delete", list);
 	}
+	public int getParentSeqBySeq(String seq) {
+		return mybatis.selectOne("Review.getParentSeqBySeq",seq);
+	}
+	public int getCountByParentSeq(int parent_seq) {
+		return mybatis.selectOne("Review.getCountByParentSeq",parent_seq);
+	}
 }

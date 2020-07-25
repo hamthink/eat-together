@@ -59,14 +59,14 @@ $(function(){
 	<!-- ******************* -->
 <div class="container">
 		<div class="row">
-			<div class="col-12 mt-3">
+			<div class="col-12 mt-3 mb-3">
 				<h2 class="notice-title">공지사항 게시판</h2>
 			</div>
 		</div>
 		<div class="row">
 			<div class="table-responsive">
 				<table class="table border-bottom border-dark">
-					<thead class="thead-dark">
+					<thead class="bg-warning">
 						<tr>
 							<th scope="col" class="text-center">#</th>
 							<th scope="col">글제목</th>
@@ -91,10 +91,10 @@ $(function(){
 							</th>
 							</c:if>
 							
-							<td><a href="/notice/contents?seq=${i.seq}"><c:out value="${i.title}"/></a></td>
-							<td>${i.sDate}</td>
-							<td><c:if test="${i.attachment ne '0'}">&#x1F4BE;</c:if></td>
-							<td>${i.view_count}</td>
+							<td class="text-center"><a href="/notice/contents?seq=${i.seq}"><c:out value="${i.title}"/></a></td>
+							<td class="text-center">${i.sDate}</td>
+							<td class="text-center"><c:if test="${i.attachment ne '0'}">&#x1F4BE;</c:if></td>
+							<td class="text-center">${i.view_count}</td>
 							
 						</tr>
 						</c:forEach>

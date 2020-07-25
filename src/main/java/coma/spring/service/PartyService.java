@@ -263,7 +263,10 @@ public class PartyService {
 		Element linkTag = doc.selectFirst("ul#placeList>li>a>span");
 		String img = linkTag.html();
 		if(img.contains("fname=")) {
-			return img.split("fname=")[1].split("\"")[0];
+			
+			img=img.split("fname=")[1].split("\"")[0];
+			img=img.replace("http://", "//");
+			return img;
 		}
 		else {
 			// 이미지 소스 없는 가게 에러 해결 위해 추가 - 태훈

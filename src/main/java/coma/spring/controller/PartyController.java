@@ -54,19 +54,19 @@ import coma.spring.service.ReviewService;
 public class PartyController {
 	@Autowired
 	private ChatService cservice;
-	
+
 	@Autowired
 	private PartyService pservice;
 
 	@Autowired
 	private MapService mapservice;
-	
+
 	@Autowired
 	private ReviewService rservice;
 
 	@Autowired
 	private HttpSession session;
-	
+
 	// 수지 모임글 작성 페이지 이동
 	@RequestMapping("toParty_New")
 	public String toPartyNew(HttpServletRequest request) {
@@ -75,13 +75,13 @@ public class PartyController {
 			String userid= account.getId();
 			String nickname = account.getNickname();
 			int gender = account.getGender();
-			
+
 			//계정당 활성화된 모임 체크
 			int myPartyCount = pservice.getMadePartyCount(nickname);
 			if(myPartyCount>4) {
 				return "/error/partyfull";
 			}
-			
+
 			String age = account.getBirth();
 			request.setAttribute("gender", gender);
 			request.setAttribute("age", age);
@@ -103,28 +103,28 @@ public class PartyController {
 
 		Timestamp meetdate = java.sql.Timestamp.valueOf(dateAndtime);
 		dto.setMeetdate(meetdate);
-		
+
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
 		Calendar cal = Calendar.getInstance();
 		String today = null;
 		today = formatter.format(cal.getTime());
 		Timestamp ts = Timestamp.valueOf(today);
-		
+
 		if(meetdate.before(ts)) {
 			return "error/partyinsert";
 		}
-		
-		
-		
+
+
+
 		MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");
 		String userid= account.getId();
 		String nickname = account.getNickname();
-			
+
 		dto.setWriter(nickname);
 		dto.setStatus("1");
 		//
-		
-		
+
+
 		int count = dto.getCount();
 		System.out.println("카운트="+count);
 		//		
@@ -153,7 +153,7 @@ public class PartyController {
 
 		int myseq = pservice.partyInsert(dto);   // 글번호
 		//채팅 insert (생성)  cservice.insert(seq);
-		
+
 		pservice.partyJoin(Integer.toString(myseq),nickname);
 
 		// 모임 등록 작업 수행
@@ -240,6 +240,11 @@ public class PartyController {
 			MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");
 			String age = account.getBirth();
 			request.setAttribute("age", age);
+			boolean isPartyfull = pservice.isPartyfull(seq);
+			PartyCountDTO getPartyCounts = pservice.getPartyCounts(seq);
+			
+			request.setAttribute("isPartyfull", isPartyfull);
+			request.setAttribute("getPartyCounts", getPartyCounts);
 		}catch(Exception e) {}
 		return "/party/party_modify";
 	}
@@ -247,17 +252,17 @@ public class PartyController {
 	@RequestMapping("party_modifyProc")
 	public String partymodifyProc(PartyDTO dto, HttpServletRequest request) throws Exception{
 		String date = dto.getDate();
-//		String time = dto.getTime();
+		//		String time = dto.getTime();
 		String dateAndtime = "";
-//		if(time.length()==8) {
-//			dateAndtime = date + " "+time+".0";
-//		}else {
-//			dateAndtime = date + " "+time+":00.0";
-//		}
+		//		if(time.length()==8) {
+		//			dateAndtime = date + " "+time+".0";
+		//		}else {
+		//			dateAndtime = date + " "+time+":00.0";
+		//		}
 		dateAndtime = date+":00.0";
-	//	System.out.println(date);
-	//	System.out.println(time);
-	//	System.out.println(dateAndtime);
+		//	System.out.println(date);
+		//	System.out.println(time);
+		//	System.out.println(dateAndtime);
 
 		Timestamp meetdate = java.sql.Timestamp.valueOf(dateAndtime);
 		dto.setMeetdate(meetdate);
@@ -298,71 +303,71 @@ public class PartyController {
 			System.out.println(top.get(i).getName());
 		}
 		////////////////////////top 5 ///////////////////////////
-		
+
 		request.setAttribute("top", top);
 		request.setAttribute("imglist2", imgList2);
 		request.setAttribute("review", reviews);
-		
+
 		return "/party/party_list";
 	}
-	
+
 	// 태훈 모임 리스트 출력
 	@RequestMapping("getPartyList")
 	public String getPartyList(HttpServletRequest request) throws Exception {
 
 		int cpage=1;
-		
+
 		try {
-			 cpage = Integer.parseInt(request.getParameter("cpage"));
+			cpage = Integer.parseInt(request.getParameter("cpage"));
 		}catch(Exception e) {
 
 		}
-		
+
 		List<PartyDTO> partyList = pservice.selectList(cpage);
-		
+
 		request.setAttribute("list", partyList);
-		
+
 		return "/include/party_list_include";
 	}
 
 	// 태훈 모임 통합 검색
 	@RequestMapping(value="partysearch",  method = RequestMethod.POST)
 	public String partySearch(HttpServletRequest request) throws Exception {
-	
-        JsonArray Jarr = JsonParser.parseString(request.getParameter("formData")).getAsJsonArray();
-        Map<String, Object> map = new HashMap<>();
-        List<String> ageList = new ArrayList<>();
-        for(int i=0; i<Jarr.size();i++) {
-        	if(Jarr.get(i).getAsJsonObject().get("name").getAsString().equals("age")) {
-        		String age = Jarr.get(i).getAsJsonObject().get("value").getAsString();
-        		ageList.add(age);
-        	}else {
-        		map.put(Jarr.get(i).getAsJsonObject().get("name").getAsString(), Jarr.get(i).getAsJsonObject().get("value").getAsString());
-        	}
-        }
-        map.put("ageList", ageList);
-        map.put("ageListSize", ageList.size());
-        System.out.println(map.get("ageList"));
-        System.out.println(map.get("ageList.size"));
-        System.out.println(map.get("search") + ":" + map.get("search").getClass().getTypeName());
-        System.out.println(map.get("text"));
-        System.out.println(map);
 
-        int cpage=1;
-		
+		JsonArray Jarr = JsonParser.parseString(request.getParameter("formData")).getAsJsonArray();
+		Map<String, Object> map = new HashMap<>();
+		List<String> ageList = new ArrayList<>();
+		for(int i=0; i<Jarr.size();i++) {
+			if(Jarr.get(i).getAsJsonObject().get("name").getAsString().equals("age")) {
+				String age = Jarr.get(i).getAsJsonObject().get("value").getAsString();
+				ageList.add(age);
+			}else {
+				map.put(Jarr.get(i).getAsJsonObject().get("name").getAsString(), Jarr.get(i).getAsJsonObject().get("value").getAsString());
+			}
+		}
+		map.put("ageList", ageList);
+		map.put("ageListSize", ageList.size());
+		System.out.println(map.get("ageList"));
+		System.out.println(map.get("ageList.size"));
+		System.out.println(map.get("search") + ":" + map.get("search").getClass().getTypeName());
+		System.out.println(map.get("text"));
+		System.out.println(map);
+
+		int cpage=1;
+
 		try {
-			 cpage = Integer.parseInt(request.getParameter("cpage"));
+			cpage = Integer.parseInt(request.getParameter("cpage"));
 		}catch(Exception e) {
 
 		}
-		
+
 		List<PartyDTO> partyList = pservice.partySearch(map , cpage);
 
 		request.setAttribute("list", partyList);
 
 		return "/include/party_list_include";
 	}
-	
+
 	// 태훈 모임 내용 모달 창
 	@RequestMapping(value="party_content_include")
 	public String party_content_include(HttpServletRequest request) throws Exception {
@@ -370,13 +375,13 @@ public class PartyController {
 		PartyDTO content = pservice.selectBySeq(Integer.parseInt(seq));		
 		MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");		
 		String nickname = account.getNickname();
-		
-		
+
+
 		boolean partyFullCheck = pservice.isPartyfull(seq);
 		boolean partyParticipantCheck= pservice.isPartyParticipant(seq, nickname);
-	
+
 		PartyCountDTO pcdto = pservice.getPartyCounts(seq);
-		
+
 		request.setAttribute("con",content);
 		request.setAttribute("party", pcdto);
 		request.setAttribute("partyFullCheck", partyFullCheck);
@@ -386,72 +391,78 @@ public class PartyController {
 	// 수지 모임 글 보기
 	@RequestMapping(value="party_content")
 	public String party_content(String seq, HttpServletRequest request) throws Exception {
-		PartyDTO content=pservice.selectBySeq(Integer.parseInt(seq));
-		String img = pservice.clew(content.getParent_name());
-		MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");
-		String id = account.getId();
-		String nickname = account.getNickname();
-		boolean partyFullCheck = pservice.isPartyfull(seq);
-		boolean partyParticipantCheck= pservice.isPartyParticipant(seq, nickname);
-		System.out.println("멤버인가?" + partyParticipantCheck);
-		if(partyParticipantCheck) {
-			request.setAttribute("participant", 1);
-		}
-		
-		PartyCountDTO pcdto = pservice.getPartyCounts(seq);
-		
-		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
-		Calendar cal = Calendar.getInstance();
-		String today = null;
-		today = formatter.format(cal.getTime());
-		Timestamp ts = Timestamp.valueOf(today);
+		try {
+			MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");
+			String id = account.getId();
+			String nickname = account.getNickname();
+			PartyDTO content=pservice.selectBySeq(Integer.parseInt(seq));
+			String img = pservice.clew(content.getParent_name());
 
-		Timestamp deadln = content.getDeadline();
-		String partylife = "";
-		System.out.println("오늘날짜" + ts);
-		System.out.println("마감날짜" + deadln);
-		if(ts.compareTo(deadln)>0) {
-			partylife="dead";
-		}else {
-			partylife="alive";
+
+			boolean partyFullCheck = pservice.isPartyfull(seq);
+			boolean partyParticipantCheck= pservice.isPartyParticipant(seq, nickname);
+			System.out.println("멤버인가?" + partyParticipantCheck);
+			if(partyParticipantCheck) {
+				request.setAttribute("participant", 1);
+			}
+
+			PartyCountDTO pcdto = pservice.getPartyCounts(seq);
+
+			SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
+			Calendar cal = Calendar.getInstance();
+			String today = null;
+			today = formatter.format(cal.getTime());
+			Timestamp ts = Timestamp.valueOf(today);
+
+			Timestamp deadln = content.getDeadline();
+			String partylife = "";
+			System.out.println("오늘날짜" + ts);
+			System.out.println("마감날짜" + deadln);
+			if(ts.compareTo(deadln)>0) {
+				partylife="dead";
+			}else {
+				partylife="alive";
+			}
+
+
+			request.setAttribute("partylife", partylife);
+			request.setAttribute("img", img);
+			request.setAttribute("con",content);
+			request.setAttribute("party", pcdto);
+			request.setAttribute("account", account);
+			request.setAttribute("partyFullCheck", partyFullCheck);
+			request.setAttribute("partyParticipantCheck", partyParticipantCheck);
+			return "/party/party_content";
+		}catch(Exception e) {
+			return "/error/fromsnsconnect";
 		}
-			
-			
-		request.setAttribute("partylife", partylife);
-		request.setAttribute("img", img);
-		request.setAttribute("con",content);
-		request.setAttribute("party", pcdto);
-		request.setAttribute("account", account);
-		request.setAttribute("partyFullCheck", partyFullCheck);
-		request.setAttribute("partyParticipantCheck", partyParticipantCheck);
-		return "/party/party_content";
 	}
 	// 수지 모임  참여
 	@RequestMapping(value="partyJoin")
 	public String partyJoin(String seq, HttpServletRequest request, RedirectAttributes redirectAttributes) throws Exception {
 		MemberDTO mdto = (MemberDTO) session.getAttribute("loginInfo");
 		String nickname = mdto.getNickname();
-		
-		
+
+
 		int block=pservice.userBlockedConfirm(nickname, Integer.parseInt(seq));
-		
+
 		if(block>0) {
 			return "error/BlockJoin";
 		}
 
 		System.out.println(seq);
 		System.out.println(nickname);
-		
+
 		boolean partyFullCheck = pservice.isPartyfull(seq);
 		boolean partyParticipantCheck= pservice.isPartyParticipant(seq, nickname);
-		
+
 		//모임 참여
 		if(!partyFullCheck && !partyParticipantCheck) {
 			pservice.partyJoin(seq, nickname);
 		}else {
 			return "error/partyJoin";
 		}
-		
+
 		//모임참여 후 참가인원수 확인
 		boolean AfterpartyFullCheck = pservice.isPartyfull(seq);
 		//참가인원이 다 차면 모집종료처리
@@ -459,12 +470,12 @@ public class PartyController {
 			pservice.stopRecruit(seq);
 		}
 		boolean AfterpartyParticipantCheck= pservice.isPartyParticipant(seq, nickname);
-		
+
 		PartyDTO content=pservice.selectBySeq(Integer.parseInt(seq));
-		
+
 		Map<String,String> partyCheck = new HashMap<>();
-		
-		
+
+
 		/*
 		 * //redirectAttributes.addAttribute("con",content);
 		 * redirectAttributes.addAttribute("partyFullCheck", AfterpartyFullCheck);
@@ -474,7 +485,7 @@ public class PartyController {
 		request.setAttribute("partyFullCheck", AfterpartyFullCheck);
 		request.setAttribute("partyParticipantCheck", AfterpartyParticipantCheck);
 		return "redirect:/party/party_content?seq=" + content.getSeq();
-		
+
 	}
 
 	// 수지 모집종료 기능
@@ -483,51 +494,51 @@ public class PartyController {
 		MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");
 		String nickname = account.getNickname();
 		if(nickname.contentEquals(writer)) {
-		pservice.stopRecruit(seq);
-		return "redirect:/party/party_content?seq="+seq;
+			pservice.stopRecruit(seq);
+			return "redirect:/party/party_content?seq="+seq;
 		}else {
 			return "/error/writerpermition";
 		}
 	}
-	
+
 	// 수지 모집 재시작 기능
 	@RequestMapping("restartRecruit")
 	public String restartRecruit(String seq, String writer) throws Exception {
 		MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");
 		String nickname = account.getNickname();
 		if(nickname.contentEquals(writer)) {
-		pservice.restartRecruit(seq);
-		return "redirect:/party/party_content?seq="+seq;
+			pservice.restartRecruit(seq);
+			return "redirect:/party/party_content?seq="+seq;
 		}else {
 			return "/error/writerpermition";
 		}
 	}
-	
+
 	// 수지 모임 나가기 기능
 	@RequestMapping("toExitParty")
 	public String exitParty(String seq) throws Exception{
 		MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");
 		String nickname = account.getNickname();
-		
+
 		cservice.exitChatRoom(nickname, Integer.parseInt(seq));
 		boolean isPartyfull = pservice.isPartyfull(seq);
 		if(!isPartyfull) {
 			System.out.println("hello it's me");
 			pservice.restartRecruit(seq);
 		}
-		
+
 		PartyDTO content=pservice.selectBySeq(Integer.parseInt(seq));
 		if(nickname == content.getWriter()) {
 			this.partydelete(seq);
 		}
 		return "redirect:/party/party_content?seq="+seq;
-		
+
 	}
-	
+
 	// 지은 작성자 별 모임 리스트
 	@RequestMapping("selectByWriter")
 	public ModelAndView selectByWriter(int mcpage) throws Exception{
-		
+
 		ModelAndView mav = new ModelAndView();
 		mav.setViewName("member/mypage_chatlist");
 
@@ -537,7 +548,7 @@ public class PartyController {
 
 		MemberDTO mdto = (MemberDTO) session.getAttribute("loginInfo");
 		String nickname = mdto.getNickname();
-		
+
 		List<PartyDTO> partyList = pservice.selectByWriterPage(nickname, mcpage);
 		String navi = pservice.getMyPageNav(mcpage, nickname);
 		System.out.println("내 모임 개수 : " + partyList.size());
@@ -546,7 +557,7 @@ public class PartyController {
 
 		return mav;
 	}
-	
+
 	// 파티리스트로 이동
 	@RequestMapping("toPartylist")
 	public String toPartylist() throws Exception{
@@ -567,16 +578,16 @@ public class PartyController {
 		MemberDTO mdto = (MemberDTO) session.getAttribute("loginInfo");
 		String id = mdto.getNickname();
 
-		
+
 		String report_id = request.getParameter("report_id");
 		int seq = Integer.parseInt(request.getParameter("seq"));
 		if(id.equals(report_id)) {
-			 
+
 			return "redirect:/party/party_content?seq="+seq;
 		}
 		Timestamp stamp = new Timestamp(System.currentTimeMillis());
 		redirectAttributes.addFlashAttribute("rdto", new ReportDTO(0,1,id,report_id,request.getParameter("title"),request.getParameter("content"),stamp,seq,0));
-		
+
 		return "redirect:/report/newReport/";
 	}
 

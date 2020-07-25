@@ -28,7 +28,6 @@ public class ReportDAO {
 	public int getListCount() {
 		return mybatis.selectOne("Report.getListCount");
 	}
-	
 	public int checkReport(int seq) {
 		return mybatis.update("Report.checkReport",seq);
 	}
@@ -44,6 +43,25 @@ public class ReportDAO {
 	
 	public int acceptReport(String report_id) {
 		return mybatis.update("Report.acceptReport",report_id);
+	}
+	
+	public int checkReal(int category , int parent_seq) {
+		Map<String , Object> param = new HashMap<>();
+		String table =null;
+		if(category == 0) {
+			table = "review";
+		}
+		else if(category == 1){
+			table = "party";
+		}else {
+			int seq = parent_seq;
+			return mybatis.selectOne("Report.memberReal",seq);
+		}
+		param.put("table" , table);
+		param.put("seq", parent_seq);
+		System.out.println("table"+ table);
+		System.out.println("seq"+parent_seq);
+		return mybatis.selectOne("Report.checkReal",param);
 	}
 	
 	public int repoCountDown(int category , int parent_seq) {

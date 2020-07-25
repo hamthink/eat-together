@@ -30,7 +30,7 @@
 <!-- header,footer용 css  -->
 <!-- loginview css -->
 <link rel="stylesheet" type="text/css"
-	href="/resources/css/loginview.css">
+	href="/resources/css/loginview.css?ver=1">
 <!-- loginview css -->
 
 <meta charset="UTF-8">
@@ -42,7 +42,7 @@
 	<!-- ******************* -->
 	<!-- header  -->
 	<jsp:include page="/WEB-INF/views/include/header.jsp" />
-	<!-- hedaer  -->
+	<!-- header  -->
 	<!-- ******************* -->
 	<div id=container class="col-md-12 login-container">
 		<h1 class="login_text">로그인</h1>
@@ -56,14 +56,19 @@
 				<label for="password" class="login_text">Password</label> <input
 					type="password" class="form-control" id="pw" name="pw">
 			</div>
-			<div class="col-md-12 text-center login_text" id="BtnBox">
-				<button type="submit" id="loginBtn" class="btn btn-warning">로그인</button>
-				<!-- **** 카카오톡 아이디로 로그인 버튼 노출 영역_ 최종테스트에서는 redirect_uri 수정할 필요가 있다 https://eat-together.net/member/kakaoLogin ****-->
-				<a
-					href="https://kauth.kakao.com/oauth/authorize?client_id=39543f4353dc8ce2c9268fc23c6d67e4&redirect_uri=https://eat-together.net/member/kakaoLogin&response_type=code"
-					id="kakaoLoginBtn"> <img
-					src="/resources/img/kakao_login_medium_narrow.png">
-				</a>
+			<div class="row" id="btnBox">
+				<div class="col-12" align="center" style="margin-top:10px;">
+					<button type="submit" id="loginBtn" class="btn btn-warning">로그인</button>
+					<button type="button" id="SignupBtn" class="btn btn-secondary">회원가입</button>
+				</div>
+				<div class="col-12" align="center">
+					<!-- **** 카카오톡 아이디로 로그인 버튼 노출 영역_ 최종테스트에서는 redirect_uri 수정할 필요가 있다 https://eat-together.net/member/kakaoLogin ****-->
+					<a
+						href="https://kauth.kakao.com/oauth/authorize?client_id=39543f4353dc8ce2c9268fc23c6d67e4&redirect_uri=https://eat-together.net/member/kakaoLogin&response_type=code"
+						id="kakaoLoginBtn"> <img
+						src="/resources/img/kakao_login_medium_narrow.png">
+					</a>
+				</div>
 			</div>
 			<!-- 카카오톡 아이디로 로그인 버튼 노출 영역 -->
 		</form>
@@ -134,6 +139,10 @@
 				console.log("로그인되어있음");
 				location.replace("/");
 			}
+
+			$("#SignupBtn").on("click", function() {
+				location.replace("/member/signup_check");
+			})
 		}
 	</script>
 

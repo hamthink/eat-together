@@ -39,6 +39,7 @@ public class QuestionController {
 	public String question_list(HttpServletRequest request)throws Exception{
 		MemberDTO mdto = (MemberDTO) session.getAttribute("loginInfo");
 		String msg_receiver=mdto.getId();
+		int newMsg=msgservice.newmsg(mdto.getNickname());
 		System.out.println(msg_receiver+"의 1:1문의");
 		if(session.getAttribute("qcpage")==null) {
 			session.setAttribute("qcpage", 1);
@@ -51,7 +52,7 @@ public class QuestionController {
 		String navi = qservice.QuestionNavi(qcpage, msg_receiver);
 		request.setAttribute("navi", navi);
 		request.setAttribute("list", qdto);
-		
+		session.setAttribute("newMsg", newMsg);
 		return "question/mypage_question";
 	}
 	//문의 보기

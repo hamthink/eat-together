@@ -38,15 +38,15 @@ function saveMsg(msg_seq) {
 				</div>
 				<hr>
 				<div class="row">
-					<div class="col">
+					<div class="col" colspan=10>
 						<button type="button" class="btn btn-danger" onclick="location.href='toAdmin_msg'">공지</button>					
 						<button type="button" class="btn btn-warning" onclick="location.href='admin_msgSend?ascpage=1'">받은 쪽지함</button>
 						<button type="button" class="btn btn-warning" onclick="location.href='admin_msgReceive?arcpage=1'">보낸 쪽지함</button>
-						<button type="button" class="btn btn-dark" onclick="location.href='admin_msgDelete?gcpage=1'">삭제된 쪽지함</button>
+						<button type="button" class="btn btn-dark" onclick="location.href='admin_SendDel?sdcpage=1'">삭제된 쪽지함</button>
+						<button type="button" class="btn btn-dark" onclick="location.href='admin_msgDelete?gcpage=1'">휴지통</button>
 					</div>
 				</div>
 				<hr>
-				<form action="msgNotice" method="post">
 					<div class="row">
 						<div class="col-12  col-sm-12">
 							<div class="row">
@@ -91,7 +91,7 @@ function saveMsg(msg_seq) {
 													</td>
 												</tr>
 											</c:forEach>
-
+											<tr><td scope="col" colspan=12 align="right"><button type="button" id="empty" class="btn btn-dark" >비우기</button></td></tr>
 											<tr>
 												<td scope="col" colspan=12 align="center">${navi}</td>
 											</tr>
@@ -102,11 +102,19 @@ function saveMsg(msg_seq) {
 
 						</div>
 					</div>
-				</form>
 			</div>
 
 		</div>
-
+<script>
+	$("#empty").on("click",function(){
+		var result =confirm("휴지통을 비우시겠습니까?");
+		console.log(result);
+		if(result){
+			location.href="admin_EmptyDeleteMsg";
+			return true;
+		}
+	})
+</script>
 	</div>
 </body>
 </html>

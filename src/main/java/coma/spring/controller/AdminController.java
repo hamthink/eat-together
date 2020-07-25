@@ -1,7 +1,9 @@
 package coma.spring.controller;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -25,13 +27,11 @@ import coma.spring.dto.ReportDTO;
 import coma.spring.dto.ReviewDTO;
 import coma.spring.service.AdminService;
 import coma.spring.service.FaqService;
-import coma.spring.service.MemberService;
 import coma.spring.service.MsgService;
 import coma.spring.service.PartyService;
 import coma.spring.service.QuestionService;
 import coma.spring.service.ReportService;
 import coma.spring.service.ReviewService;
-import coma.spring.statics.Configuration;
 
 
 @Controller
@@ -46,10 +46,10 @@ public class AdminController {
 
 	@Autowired
 	private PartyService pservice;
-
+	
 	@Autowired
 	private QuestionService qservice;
-
+	
 	@Autowired
 	private MsgService msgservice;
 	
@@ -63,8 +63,6 @@ public class AdminController {
 	@Autowired
 	private ReportService reportservice;
 	
-	@Autowired
-	private MemberService mservice;
 
 	@ExceptionHandler
 	public String exceptionHandler(NullPointerException npe) {
@@ -74,10 +72,34 @@ public class AdminController {
 	}
 
 	@RequestMapping("toAdmin")
-	public String toAdmin() {
+	public String toAdmin(HttpServletRequest request) throws Exception {
 		MemberDTO loginInfo = (MemberDTO)session.getAttribute("loginInfo");
 		String adminCheck = loginInfo.getId();
 		if(adminCheck.contentEquals("administrator")) {
+			
+			int totalMember = aservice.getAllMemberCount();
+			request.setAttribute("member", totalMember);
+			
+			int totalParty = pservice.selectAllCount();
+			request.setAttribute("totalparty", totalParty);
+			
+			int totalMap = aservice.mapCount();
+			request.setAttribute("map", totalMap);
+			
+			int reportCount = aservice.reportCount();
+			request.setAttribute("reportCount", reportCount);
+			
+			int questionCount = aservice.questionCount();
+			request.setAttribute("questionCount", questionCount);
+			
+			//Map<Integer, Integer> age = new HashMap<>();
+			Map<String, Integer> age = new HashMap<>();
+			age = aservice.memberCountByAge();
+			
+			//Map<String, Integer> party = new HashMap<>();
+			
+			request.setAttribute("age", age);
+			request.setAttribute("party", aservice.partyCountByDay());
 			return "/admin/admin_main";
 		}
 		else {
@@ -88,20 +110,25 @@ public class AdminController {
 	@RequestMapping("toAdmin_member")
 	public ModelAndView toAdmin_member(HttpServletRequest request)  throws Exception {
 		ModelAndView mav = new ModelAndView();
-		mav.setViewName("admin/admin_member");
-
-		int cpage=1;
-		try {
-			cpage = Integer.parseInt(request.getParameter("cpage"));
-		}catch(Exception e) {
-
+		boolean adminCheck = this.adminCheck();
+		if(adminCheck) { // 어드민 계정이 맞으면
+			mav.setViewName("admin/admin_member");
+	
+			int cpage=1;
+			try {
+				cpage = Integer.parseInt(request.getParameter("cpage"));
+			}catch(Exception e) {
+	
+			}
+	
+			List<MemberDTO> mlist = aservice.memberList(cpage);
+			String navi = aservice.getMemberPageNav(cpage);
+	
+			mav.addObject("mlist", mlist);
+			mav.addObject("navi", navi);
+		}else {
+			mav.setViewName("error/adminpermission");
 		}
-
-		List<MemberDTO> mlist = aservice.memberList(cpage);
-		String navi = aservice.getMemberPageNav(cpage);
-
-		mav.addObject("mlist", mlist);
-		mav.addObject("navi", navi);
 		return mav;
 	}
 
@@ -231,50 +258,70 @@ public class AdminController {
 	@RequestMapping("partyByOption")
 	public ModelAndView partyByOption(HttpServletRequest request)throws Exception {
 		ModelAndView mav = new ModelAndView();
-		mav.setViewName("/admin/admin_party");
-		Object option;
-
-		if(request.getParameter("option")!=null) {
-			option = request.getParameter("option");
-			session.setAttribute("option", option);
+		boolean adminCheck = this.adminCheck();
+		if(adminCheck) { // 어드민 계정이 맞으면
+			mav.setViewName("admin/admin_party");
+			Object option;
+	
+			if(request.getParameter("option")!=null) {
+				option = request.getParameter("option");
+				session.setAttribute("option", option);
+			}else {
+				option = session.getAttribute("option");
+			}
+			int cpage=1;
+			try {
+				cpage = Integer.parseInt(request.getParameter("cpage"));
+			}catch(Exception e) {
+	
+			}
+			List<PartyDTO> list = aservice.partyByOption(cpage, option);
+			String navi = aservice.getSelectPartyPageNav(cpage, option);
+	
+			mav.addObject("list", list);
+			mav.addObject("navi", navi);
+			System.out.println(option + "검색성공");
 		}else {
-			option = session.getAttribute("option");
+			mav.setViewName("error/adminpermission");
 		}
-		int cpage=1;
-		try {
-			cpage = Integer.parseInt(request.getParameter("cpage"));
-		}catch(Exception e) {
-
-		}
-		List<PartyDTO> list = aservice.partyByOption(cpage, option);
-		String navi = aservice.getSelectPartyPageNav(cpage, option);
-
-		mav.addObject("list", list);
-		mav.addObject("navi", navi);
-		System.out.println(option + "검색성공");
 		return mav;
+	}
+	public boolean adminCheck() throws Exception{
+		MemberDTO loginInfo = (MemberDTO)session.getAttribute("loginInfo");
+		String adminCheck = loginInfo.getId();
+		boolean adminpermission = false;
+		if(adminCheck.contentEquals("administrator")) {
+			adminpermission = true;
+		}
+		return adminpermission;
 	}
 
 	@RequestMapping("sortReview") // 예지 : 리뷰 검색
 	public ModelAndView sortReview(HttpServletRequest request) throws Exception{
 		ModelAndView mav = new ModelAndView();
-		mav.setViewName("admin/admin_review");
-		Object option;
-		if(request.getParameter("option")!=null) {
-			option = request.getParameter("option");
-			session.setAttribute("option", option);
+		boolean adminCheck = this.adminCheck();
+		if(adminCheck) {
+			mav.setViewName("admin/admin_review");
+			Object option;
+			if(request.getParameter("option")!=null) {
+				option = request.getParameter("option");
+				session.setAttribute("option", option);
+			}else {
+				option = session.getAttribute("option");
+			}
+	
+			int cpage=1;
+			try {cpage = Integer.parseInt(request.getParameter("cpage"));}catch(Exception e) {}
+			List<ReviewDTO> rlist = rservice.selectByPageAndOption(cpage, option);
+			String navi = rservice.getPageNaviByOption(cpage, option);
+			mav.addObject("rlist", rlist);
+			mav.addObject("navi", navi);
+			System.out.println(option + "검색성공");
+			return mav;
 		}else {
-			option = session.getAttribute("option");
+			mav.setViewName("error/adminpermission");
+			return mav;
 		}
-
-		int cpage=1;
-		try {cpage = Integer.parseInt(request.getParameter("cpage"));}catch(Exception e) {}
-		List<ReviewDTO> rlist = rservice.selectByPageAndOption(cpage, option);
-		String navi = rservice.getPageNaviByOption(cpage, option);
-		mav.addObject("rlist", rlist);
-		mav.addObject("navi", navi);
-		System.out.println(option + "검색성공");
-		return mav;
 	}
 	@ResponseBody // 예지 리뷰 상세정보 Modal 
 	@RequestMapping(value="viewDetailReview",produces="application/json;charset=utf8")
@@ -459,7 +506,12 @@ public class AdminController {
 	//공지 쪽지
 	@RequestMapping("toAdmin_msg")
 	public String toAdmin_msg()throws Exception{
-		return "/admin/admin_msg";
+		boolean adminCheck = this.adminCheck();
+		if(adminCheck) { // 어드민 계정이 맞으면
+			return "/admin/admin_msg";
+		}else {
+			return "/error/adminpermission";
+		}
 	}
 	@RequestMapping("msgNotice")
 	public String msgNotice(HttpServletRequest request,MsgDTO msgdto)throws Exception{
@@ -475,7 +527,6 @@ public class AdminController {
 	public String msglist_sender(HttpServletRequest request)throws Exception{
 		MemberDTO mdto = (MemberDTO)session.getAttribute("loginInfo");
 		String msg_receiver = mdto.getNickname();
-		System.out.println(msg_receiver+"의 받은 쪽지함");
 
 		if(session.getAttribute("ascpage")==null) {
 			session.setAttribute("ascpage", 1);
@@ -495,7 +546,6 @@ public class AdminController {
 	public String msglist_receiver(HttpServletRequest request)throws Exception{
 		MemberDTO mdto = (MemberDTO)session.getAttribute("loginInfo");
 		String msg_receiver = mdto.getNickname();
-		System.out.println(msg_receiver+"의 보낸 쪽지함");
 
 		if(session.getAttribute("arcpage")==null) {
 			session.setAttribute("arcpage", 1);
@@ -518,7 +568,6 @@ public class AdminController {
 	public String msglist_delete(HttpServletRequest request)throws Exception{
 		MemberDTO mdto = (MemberDTO)session.getAttribute("loginInfo");
 		String msg_receiver = mdto.getNickname();
-		System.out.println(msg_receiver+"의 보낸 쪽지함");
 
 		if(session.getAttribute("gcpage")==null) {
 			session.setAttribute("gcpage", 1);
@@ -543,7 +592,17 @@ public class AdminController {
 		int result = aservice.saveMsg(msg_seq);
 		return "redirect:admin_msgDelete";
 	}
-
+	
+	@RequestMapping("saveMsgSend")
+	@ResponseBody
+	public int saveMsgSend(HttpServletRequest request)throws Exception{
+		String data = request.getParameter("msg_seqs"); 
+		String msg_seqs = data.substring(2,data.length()-2);
+		String[] checkList = msg_seqs.split("\",\"");
+		int resp = aservice.saveMsgSend(checkList);
+		return resp;
+	}
+	
 
 
 	// 태훈 신고 리스트 출력하기 
@@ -610,7 +669,76 @@ public class AdminController {
 		request.setAttribute("list", rdto);
 		return "/admin/admin_report";
 	}
-	
+	//삭제된  메세지함
+	@RequestMapping("admin_SendDel")
+	public String admin_SendDel(HttpServletRequest request)throws Exception{
+		MemberDTO mdto = (MemberDTO)session.getAttribute("loginInfo");
+		String admincheck = mdto.getNickname();
+		if(admincheck.contentEquals("administrator")) {
+			if(session.getAttribute("sdcpage")==null) {
+				session.setAttribute("sdcpage", 1);
+			}
+			try { 
+				session.setAttribute("sdcpage", Integer.parseInt(request.getParameter("sdcpage")));
+			} catch (Exception e) {}
+
+			int sdcpage=(int)session.getAttribute("sdcpage");
+
+			List<MsgDTO> dto = aservice.selectBySendDel(sdcpage);
+			String navi =aservice.SendDelnavi(sdcpage);
+
+			request.setAttribute("navi", navi);
+			request.setAttribute("list", dto);
+			return "/admin/admin_SendDel";
+		}else {
+			return "error";
+		}
+	}
+	//삭제된  메세지함
+		@RequestMapping("admin_DeleteSearch")
+		public String admin_DeleteSearch(HttpServletRequest request)throws Exception{
+			MemberDTO mdto = (MemberDTO)session.getAttribute("loginInfo");
+			String admincheck = mdto.getNickname();
+			if(admincheck.contentEquals("administrator")) {
+				if(session.getAttribute("dscpage")==null) {
+					session.setAttribute("dscpage", 1);
+				}
+				try { 
+					session.setAttribute("dscpage", Integer.parseInt(request.getParameter("dscpage")));
+				} catch (Exception e) {}
+				
+				if(session.getAttribute("msg_receiver")==null) {
+					session.setAttribute("msg_receiver","");
+				}
+				try { 
+					session.setAttribute("msg_receiver", request.getParameter("msg_receiver"));
+				} catch (Exception e) {}
+				
+				int dscpage=(int)session.getAttribute("dscpage");
+				String msg_receiver = (String) session.getAttribute("msg_receiver");
+				System.out.println(msg_receiver);
+				List<MsgDTO> dto = aservice.selectByDelSearch(dscpage,msg_receiver);
+				String navi =aservice.SearchDelnavi(dscpage,msg_receiver);
+				session.setAttribute("msg_receiver", msg_receiver);
+				request.setAttribute("list", dto);
+				request.setAttribute("navi", navi);
+				return "/admin/admin_SendDel";
+			}else {
+				return "error";
+			}
+		}
+	@RequestMapping("admin_EmptyDeleteMsg")
+	public String msgDelete(HttpServletRequest request)throws Exception{
+		MemberDTO mdto = (MemberDTO)session.getAttribute("loginInfo");
+		String admincheck = mdto.getNickname();
+		if(admincheck.contentEquals("administrator")) {
+			int result = aservice.msgDelete();
+			System.out.println("삭제된 메세지 :"+result);
+			return "redirect:admin_msgDelete";
+		}else {
+			return "error";
+		}
+	}
 	
 }
 

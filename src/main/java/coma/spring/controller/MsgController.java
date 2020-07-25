@@ -76,8 +76,6 @@ public class MsgController {
 
 		int newMsg=msgservice.newmsg(msg_receiver);
 		int newMsgByAdmin=msgservice.newMsgByAdmin(msg_receiver);
-		
-		
 		int newMsgByNick=msgservice.newMsgByNick(msg_receiver);
 		
 		if(session.getAttribute("msgAcpage")==null) {

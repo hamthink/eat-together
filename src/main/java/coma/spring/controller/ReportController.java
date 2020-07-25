@@ -3,6 +3,7 @@ package coma.spring.controller;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import coma.spring.dto.MemberDTO;
 import coma.spring.dto.ReportDTO;
 import coma.spring.service.MemberReportService;
 import coma.spring.service.PartyService;
@@ -32,36 +34,31 @@ public class ReportController {
 	
 	@Autowired
 	private MemberReportService mrservice;
+	
+	@Autowired
+	private HttpSession session;
+	
 
 	// 신고 접수
 	@ResponseBody
 	@RequestMapping("newReport")
 	public int newReport(HttpServletRequest request, RedirectAttributes redirectAttributes, ReportDTO rdto) throws Exception {
-		System.out.println("도착");
 		int result = 0;
 		Map<String, ?> map = RequestContextUtils.getInputFlashMap(request);
 		rdto = (ReportDTO)map.get("rdto");
-		System.out.println(rdto.getId());
-		System.out.println(rdto.getCategory());
-		System.out.println(rdto.getReport_id());
-		System.out.println(rdto.getParent_seq());
 		int check = reposervice.checkDupl(rdto);
-		System.out.println(check);
+		
 		if(rdto.getCategory() == 0) { // 리뷰 신고
 			if(check == 0) {
 				result = rservice.report(rdto);
-				System.out.println("리뷰 신고 : " + result);
 			}
 		}else if(rdto.getCategory() == 1) { // 모임글 신고
 			if(check == 0) {
 				result = pservice.partyReport(rdto);
-				System.out.println("모임글 신고: "+result);
 			}
 		}else { // 회원 신고
 			result = mrservice.memberReport(rdto);
-			System.out.println("회원 신고: "+result);
 		}
-		
 		request.setAttribute("result", result);
 		return result;
 	}
@@ -76,6 +73,10 @@ public class ReportController {
 		int repoResult = reposervice.checkReport(Integer.parseInt(request.getParameter("seq")));
 		System.out.println("repoResult :"+repoResult);
 		if(repoResult == 1) {
+			int checkReal = reposervice.checkReal(Integer.parseInt(request.getParameter("category")), Integer.parseInt(request.getParameter("parent_seq")));
+			if(checkReal < 1) {
+				return 3;
+			}
 			result = reposervice.repoCountDown(Integer.parseInt(request.getParameter("category")), Integer.parseInt(request.getParameter("parent_seq")));
 			System.out.println("result1 : "+result);
 		}
@@ -92,8 +93,14 @@ public class ReportController {
 		int resp = 0;
 		int repoResult = reposervice.checkReport(seq);
 		if(repoResult ==1) {
-			int result1 = reposervice.checkOtherRepo(seq , category , parent_seq);
-			if(result1 == 1) {
+			int checkReal = reposervice.checkReal(Integer.parseInt(request.getParameter("category")), Integer.parseInt(request.getParameter("parent_seq")));
+			if(checkReal < 1) {
+				return 3;
+			}
+			if(category != 2) {
+				repoResult = reposervice.checkOtherRepo(seq , category , parent_seq);
+			}
+			if(repoResult == 1) {
 				System.out.println("report id : "+request.getParameter("report_id"));
 				int result=reposervice.acceptReport(request.getParameter("report_id"));
 				if(result == 1) {

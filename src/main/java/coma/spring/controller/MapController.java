@@ -6,12 +6,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Reader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +29,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
@@ -76,7 +73,6 @@ public class MapController {
 		try{place_id = Integer.parseInt(request.getParameter("place_id"));}catch(Exception e) {}
 		String object = gson.toJson(list);
 		String jsonPath = sc.getRealPath("resources/json/mapData.json");
-		System.out.println(jsonPath);
 		File file = new File(jsonPath);
 		FileWriter fw = new FileWriter(file, false);
 		JsonArray arr = gson.fromJson(object, JsonArray.class);
@@ -174,7 +170,6 @@ public class MapController {
 			}
 		}
 		String respBody =  gson.toJson(respObj);
-		System.out.println(respBody);
 		return respBody;
 	}
 
@@ -292,7 +287,6 @@ public class MapController {
 		}
 
 		String jsonPath = sc.getRealPath(path);
-		System.out.println(jsonPath);
 		// 다음 지도 API 에서 값 json 파일로 저장하는 native 코드
 		// 중심 좌표를 기준으로 카테고리별 데이터 넣는 로직
 		Gson gson = new Gson();
@@ -310,6 +304,7 @@ public class MapController {
 		Reader reader = new FileReader(jsonPath);
 		JsonObject readObj = gson.fromJson(reader, JsonObject.class);
 		// 페이지별 값 가져오기
+		JsonArray inputArr = new JsonArray();
 		loop: for(int page = 1; page < 46;page++) {
 			// 페이지마다 카테고리별 검색 진행 
 			RestTemplate restTemplate = new RestTemplate();
@@ -365,11 +360,11 @@ public class MapController {
 					}
 					if(insertable) {
 						// 입력 진행
-						System.out.println("입력함");
 						JsonObject place_info = doc.getAsJsonObject();
 						JsonObject insert_obj = new JsonObject();
 						insert_obj.add(category_name, place_info);
 						readArr.add(insert_obj); // 기존 배열에 추가
+						inputArr.add(place_info);
 					}
 				}
 				// 마지막 페이지인지 판단
@@ -385,7 +380,8 @@ public class MapController {
 				else{break loop;}
 			}
 		}
-		return respBody;
+		String inputResult = gson.toJson(inputArr);
+		return inputResult;
 	}
 
 	@RequestMapping(value="selectMarkerInfo",method=RequestMethod.GET)
@@ -394,6 +390,7 @@ public class MapController {
 		try {cpage = Integer.parseInt(request.getParameter("cpage"));}catch(Exception e) {}
 		int id = Integer.parseInt(place_id);
 		MapDTO mapdto = mapservice.selectOne(id);
+//		mapservice.updateRatingAvg(mapdto.getSeq());
 		// 진행중인 모임이 있다면 모임도 같이 보내준다.
 		int pcount = mapservice.selectPartyOn(id);
 		List<PartyDTO> plist = pservice.selectByPageNo(cpage, id);
@@ -402,7 +399,8 @@ public class MapController {
 		request.setAttribute("mapdto", mapdto);
 		request.setAttribute("partyCount", pcount);
 		MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");
-		String nickname = account.getNickname();
+		String nickname = null;
+		try{nickname = account.getNickname();}catch(Exception e) {return "error/loginPlease";}
 		Map<PartyDTO, Map<String, Object>> pMap = new LinkedHashMap<>();
 		for(PartyDTO pdto : plist) {
 			Map<String, Object> pCheckInfoMap = new LinkedHashMap<>();
@@ -423,7 +421,6 @@ public class MapController {
 				partylife="alive";
 			}
 			pCheckInfoMap.put("partylife", partylife);
-			System.out.println(pCheckInfoMap.get("partylife"));
 			pMap.put(pdto, pCheckInfoMap);
 		}
 		request.setAttribute("partyMap", pMap);
@@ -441,7 +438,6 @@ public class MapController {
 		}
 		Map<ReviewDTO,ReviewFileDTO> rmap = new LinkedHashMap<>();
 		List<ReviewDTO> rlist = rservice.selectByPseq(mapdto.getSeq());
-		System.out.println("리뷰 리스트 : " + rlist);
 		for(ReviewDTO rdto : rlist) {
 			ReviewFileDTO rf = rservice.selectFileByPseq(rdto.getSeq());
 			rmap.put(rdto, rf);
@@ -500,14 +496,14 @@ public class MapController {
 		Gson gson = new Gson();
 		JsonObject respObj = new JsonObject();
 		PartyDTO pdto = pservice.selectBySeq(seq);
-		MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");
-		String nickname = account.getNickname();
 		String jsondto = gson.toJson(pdto);
+		MemberDTO mdto = (MemberDTO) session.getAttribute("loginInfo");
+		String jsonmdto = gson.toJson(mdto);
+		respObj.add("mdto", gson.fromJson(jsonmdto, JsonElement.class));
 		respObj.add("pdto", gson.fromJson(jsondto, JsonElement.class));
 		respObj.add("partyFullCheck", gson.fromJson(String.valueOf(partyFullCheck),JsonElement.class));
 		respObj.add("partyParticipantCheck", gson.fromJson(String.valueOf(partyParticipantCheck),JsonElement.class));
 		respObj.add("partylife", gson.fromJson(partylife, JsonElement.class));
-		//pMap.put(gson.toJson(pdto), gson.toJson(pCheckInfoMap));
 		return gson.toJson(respObj);
 	}
 
@@ -539,7 +535,6 @@ public class MapController {
 			}
 		}
 		String respBody = gson.toJson(respObj);
-		System.out.println(respBody);
 		return respBody;
 	}
 	@ResponseBody
@@ -562,7 +557,6 @@ public class MapController {
 			}
 		}
 		String respBody = gson.toJson(respObj);
-		System.out.println(respBody);
 		return respBody;
 	}
 	// 예지 : 지도 페이지에서 모임글 작성 페이지 이동 : 존재하지 않는 맛집 ( #recruit 버튼 진입 )
@@ -571,13 +565,14 @@ public class MapController {
 		try {
 			MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");
 			//String userid= account.getId();
-			String nickName = account.getNickname();
+			String nickName = null;
+			try{nickName = account.getNickname();}catch(Exception e) {return "error/loginPlease";}
 			int gender = account.getGender();
 			//계정당 활성화된 모임 체크
 			//int myPartyCount = pservice.getMadePartyCount(userid);
 			int myPartyCount = pservice.getMadePartyCount(nickName);
 			if(myPartyCount>4) {
-				return "/error/partyfull";
+				return "error/partyfull";
 			}
 			String age = account.getBirth();
 			request.setAttribute("gender", gender);
@@ -605,14 +600,21 @@ public class MapController {
 	public String mapToParty_New(HttpServletRequest request, String parent_name, String parent_address, String img, String place_id, String category) {
 		try {
 			MemberDTO account = (MemberDTO) session.getAttribute("loginInfo");
-			String userid= account.getId();
-			int gender = account.getGender();
+			String userid = null;
+			int gender = 0;
+			String age = null;
+			try {
+				userid= account.getId();
+				gender = account.getGender();
+				age = account.getBirth();
+			}catch(Exception e) {
+				return "error/loginPlease";
+			}
 			//계정당 활성화된 모임 체크
 			int myPartyCount = pservice.getMadePartyCount(userid);
 			if(myPartyCount>4) {
-				return "/error/partyfull";
+				return "error/partyfull";
 			}
-			String age = account.getBirth();
 			request.setAttribute("gender", gender);
 			request.setAttribute("age", age);
 			// 장소명, 지번 주소 값 전달 
@@ -622,7 +624,6 @@ public class MapController {
 			request.setAttribute("img", img);
 			MapDTO mdto = mapservice.selectOne(Integer.parseInt(place_id));
 			request.setAttribute("mdto", mdto);
-			System.out.println("mdto 입력");
 		}catch(Exception e) {}
 		return "/party/party_new";
 	}

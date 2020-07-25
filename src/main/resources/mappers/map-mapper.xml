@@ -28,14 +28,14 @@
 	<update id="updateRatingAvg">
 		update map set rating_avg = (select round(avg(rating),2) from review where parent_seq = #{seq}) where seq = #{seq}
 	</update>
+	<update id="updateRatingAvgZero">
+		update map set rating_avg = 0 where seq = #{seq}
+	</update>
 	<select id="selectTop5" resultType="coma.spring.dto.MapDTO">
 		select * from (select * from map order by rating_avg desc) <![CDATA[where rownum <= 5]]>
 	</select>
 	<select id="topStore" resultType="coma.spring.dto.MapDTO">
 		select * from map where map.place_id in (select place_id from (select place_id, count(*) from party group by place_id order by COUNT(*) desc) <![CDATA[ where rownum <= 5 ]]>) order by seq desc
 	</select>
-	<!-- 
-	<select id="topStore" resultType="coma.spring.dto.MapDTO">
-      select * from map where place_id in (#{top1},#{top2},#{top3},#{top4},#{top5})
-	</select> -->
+
 </mapper>

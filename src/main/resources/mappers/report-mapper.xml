@@ -28,6 +28,14 @@
 		update ${table}
 		set report = report-1 where seq = #{seq}
 	</update>
+	
+	<select id="checkReal" resultType="int">
+		select count(*) from ${table} where seq = #{seq}
+	</select>
+	
+	<select id="memberReal" resultType="int">
+		select count(*) from member where nickname = (select report_id from member_report where seq = #{seq})
+	</select>
 		 
 	
 	<delete id="deleteContent">

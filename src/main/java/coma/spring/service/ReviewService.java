@@ -171,15 +171,22 @@ public class ReviewService {
 		}
 		return review;
 	}
-	// 체크 박스 리뷰 삭제하기
-	public int delete(String[] checkList) {
+	// 체크 박스 리뷰 삭제하기 // 리뷰 평균 갱신
+	public int delete(String[] checkList) throws Exception {
 		List<String> list = new ArrayList<String>();
 		for(int a=0;a<checkList.length;a++) {
 			list.add(checkList[a]);
 		}
-		return rvdao.delete(list);
+		int result = rvdao.delete(list);
+		return result;
 	}
 	public String getStorename(int parent_seq) {
 		return rvdao.getStoreName(parent_seq);
+	}
+	public int getParentSeqBySeq(String seq) {
+		return rvdao.getParentSeqBySeq(seq);
+	}
+	public int getCountByParentSeq(int parent_seq) {
+		return rvdao.getCountByParentSeq(parent_seq);
 	}
 }

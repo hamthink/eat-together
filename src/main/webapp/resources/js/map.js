@@ -55,28 +55,22 @@ function partyReport(num, report_id, title, content){
 	});	
 }
 function reviewReport(seq,content,id){
-	console.log("신고 시작 : "+ seq);
 	var ask = confirm("허위신고일 경우 피해가 되돌아올 수 있습니다. \n정말 신고하시겠습니까?\n신고할 사용자 : "+id+"\n신고할 리뷰 내용 : "+content);
 	if(ask){
-		if($("#loginInfo_id").html() == id){
-			alert("본인이 작성한 글은 신고할 수 없습니다.");
-		}
-		else{
-			$.ajax({
-				url:"/review/report",
-				data : { seq : seq, report_id : id , content : content},
-				success : function(result) {
-					if (result == 1){ 
-						alert("신고가 정상적으로 접수되었습니다.");	
-					}else{
-						alert("무분별한 신고를 방지하기 위해 신고는 한번만 가능합니다.");
-					}
-				},
-				error:function(e){
-					console.log("error");
+		$.ajax({
+			url:"/review/report",
+			data : { seq : seq, report_id : id , content : content},
+			success : function(result) {
+				if (result == 1){ 
+					alert("신고가 정상적으로 접수되었습니다.");	
+				}else if(result == 0){
+					alert("무분별한 신고를 방지하기 위해 신고는 한번만 가능합니다.");
 				}
-			});
-		}
+			},
+			error:function(e){
+				console.log("error");
+			}
+		});
 	}
 }
 
@@ -99,7 +93,7 @@ $(function(){
 	    var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 	    mapOption = { 
 	        center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
-	        level: 3 // 지도의 확대 레벨 
+	        level: 6 // 지도의 확대 레벨 
 	    };
 		// 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
 		var map = new kakao.maps.Map(mapContainer, mapOption); 
@@ -119,6 +113,7 @@ $(function(){
 	            currentPositionMarker = displayMarker(locPosition, message, currentPositionOverlay);
 	            if($("#markerLat").text()!=""){
 	            	map.setCenter(new kakao.maps.LatLng($("#markerLat").text(), $("#markerLng").text()));
+	            	map.setLevel(2);
 	            }
 	          });
 	    } else { // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
@@ -127,6 +122,7 @@ $(function(){
 	        currentPositionMarker = displayMarker(locPosition, message, currentPositionOverlay);
             if($("#markerLat").text()!=""){
             	map.setCenter(new kakao.maps.LatLng($("#markerLat").text(), $("#markerLng").text()));
+            	map.setLevel(2);
             }
 	    }
 	    function displayMarker(locPosition, message, currentPositionOverlay) { // SSL 인증 위치 중심 확인용 인포윈도우
@@ -348,7 +344,6 @@ $(function(){
 	        		data:{place_id:po.place_id,category:po.category},
 	        		dataType:"JSON"
 	        	}).done(function(resp){
-	        		console.log(resp.result);
 					$(".choose_info").html("");
 					$(".search_result").html("");
 					var info = $("<div class='info'></div>");
@@ -392,7 +387,6 @@ $(function(){
 
 	    var kakaoCafeMarkers = [];
 	    var kakaoFoodMarkers = [];
-		
 		function createMapTableMarker(positions, image){
 			var markers = [];
 			positions.forEach(function(pos){
@@ -437,8 +431,8 @@ $(function(){
 		var cafeTopMarkers = null;
 		var foodTopMarkers = null;
 		
-	    
-		$.get("/resources/json/mapData.json",function(data){
+
+		$.get("/resources/json/mapData.json").done(function(data){
 			var cafePositions = [];
 			var foodPositions = [];
 			var cafePartyPositions = [];
@@ -550,7 +544,7 @@ $(function(){
 			foodPartyMarkers = createMapTableMarker(foodPartyPositions, partyFoodImage); // 모임 모집중인 음식점
 			cafeTopMarkers = createMapTableMarker(cafeTopPositions, topCafeImage); // 리뷰 평균 Top 카페
 			foodTopMarkers = createMapTableMarker(foodTopPositions, topFoodImage); // 리뷰 평균 Top 음식점
-		});
+		}).fail(function(jqXHR, textStatus, errorThrown) { location.href = "/map/toMap"; });
 		
 		// 지도 확대 축소를 제어할 수 있는  줌 컨트롤을 생성합니다
 		var zoomControl = new kakao.maps.ZoomControl();
@@ -604,6 +598,7 @@ $(function(){
 		}
         var positions = [];
 		$(".foodInsert").on("click",function(){ // 음식점 입력
+			alert("현재 지도 중심 좌표로부터 20km 반경의 주변 장소를 불러옵니다.");
         	$.ajax({
         		url:"/map/foodInsert",
         		type:"get",
@@ -612,18 +607,27 @@ $(function(){
         			lng:$("#centerLng").text()},
         		dataType:"JSON"
         	}).done(function(resp){
+        		var result = "";
+        		if(resp.length>0){
+        			for(i = 0;i < resp.length;i++){
+        				result = result + "\n " + (i + 1) + "." + resp[i].place_name;
+        			}
+        			alert("미등록 장소(음식점) 총 "+resp.length+"개 입력 완료!\n" + result);
+        		}else if(resp.length == 0){
+        			alert("현재 지도 중심 좌표로부터 20km 반경의 \n주변 장소는 이미 입력되어 있습니다.\n\n지도의 중심을 이동해보세요.");
+        		}
         		var iCHK = 1;
         		for(var i = 0;i<iCHK;i++)
         		{
         		document.location.reload();
         		}
-        		alert("입력 완료");
         	}).fail(function(error1,error2){
         		console.log(error1);
         		console.log(error2);
         	})
 		})
 		$(".cafeInsert").on("click",function(){ // 카페 입력
+			alert("현재 지도 중심 좌표로부터 20km 반경의 주변 장소를 불러옵니다.");
         	$.ajax({
         		url:"/map/cafeInsert",
         		type:"get",
@@ -632,12 +636,20 @@ $(function(){
         			lng:$("#centerLng").text()},
         		dataType:"JSON"
         	}).done(function(resp){
+        		var result = "";
+        		if(resp.length>0){
+        			for(i = 0;i < resp.length;i++){
+        				result = result + "\n " + (i + 1) + "." + resp[i].place_name;
+        			}
+        			alert("미등록 장소(카페) 총 "+resp.length+"개 입력 완료!\n" + result);
+        		}else if(resp.length == 0){
+        			alert("현재 지도 중심 좌표로부터 20km 반경의 \n주변 장소는 이미 입력되어 있습니다.\n\n지도의 중심을 이동해보세요.");
+        		}
         		var iCHK = 1;
         		for(var i = 0;i<iCHK;i++)
         		{
         		document.location.reload();
         		}
-        		alert("입력 완료");
         	}).fail(function(error1,error2){
         		console.log(error1);
         		console.log(error2);
@@ -682,14 +694,14 @@ $(function(){
 				$("#partyModal .content").text(resp.pdto.content);
 				$(".modal-footer").html("");
 				if((resp.partyFullCheck == false && resp.pdto.status == 1) && resp.partyParticipantCheck == false){
-					if(($("#loginInfo_gender").text() == 1 && resp.pdto.gender == 'm')||($("#loginInfo_gender").text() == 2 && resp.pdto.gender == 'f')||resp.pdto.gender == 'a'){
+					if((resp.mdto.gender == 1 && resp.pdto.gender == 'm')||(resp.mdto.gender == 2 && resp.pdto.gender == 'f')||resp.pdto.gender == 'a'){
 						$("#partyModal .modal-footer").append('<button type="button" id="toPartyJoin" class="btn btn-success" onClick=\"partyJoin('+resp.pdto.seq+');\">모임참가하기</button>');						
 					}
 				}else if(resp.partyParticipantCheck == true){
 					if(resp.partylife == 'alive'){
 						$("#partyModal .modal-footer").append('<button type="button" id="toChatroom" class="btn btn-primary" onClick=\"toChatroom('+resp.pdto.seq+');\">채팅방으로 이동</button>');
 					}
-					if(resp.pdto.writer != $("#loginInfo_nickname").text()){
+					if(resp.pdto.writer != resp.mdto.nickname){
 						$("#partyModal .modal-footer").append('<button type="button" id="toExitParty" class="btn btn-danger" onClick=\"toExitParty('+resp.pdto.seq+');\">모임 나가기</button>');
 					}else{
 						if(resp.pdto.status == '1'){
@@ -699,14 +711,13 @@ $(function(){
 						}
 					}
 				}
-				if($("#loginInfo_nickname").text() == resp.pdto.writer){
+				if(resp.mdto.nickname == resp.pdto.writer){
 					$("#partyModal .modal-footer").append('<br><button type="button" id="partyModify" class="btn btn-warning" onClick=\"partyModify('+resp.pdto.seq+');\">수정</button><button type="button" id="partyDelete" class="btn btn-danger" onClick=\"partyDelete('+resp.pdto.seq+')\">삭제</button>');
 				}else{
 					$("#partyModal .modal-footer").append('<br><button type="button" id="partyReport" class="btn btn-info" onClick=\"partyReport('+resp.pdto.seq+',\''+resp.pdto.writer+'\',\''+resp.pdto.title+'\',\''+resp.pdto.content+'\');\">신고</button>');
 				}
 			})
 		})
-		var positions = [];
 		// 인포윈도우를 표시하는 클로저를 만드는 함수입니다 
 		function infoOverSet(customOverlay,map) {
 			customOverlay.setMap(map);
@@ -741,9 +752,9 @@ $(function(){
 				if(markers.length != 0){
 					$.each(markers,function(i, item){
 						item.marker.setMap(null);
+						notmapclusterer.removeMarker(item.marker);
 					});
 				}
-				
 				$(".choose_info").html("");
 				$(".search_result").html("");
 				var cafePositions = [];
@@ -762,7 +773,6 @@ $(function(){
 				}else{
 					count = resp.map_list.length + resp.cafe_list.length + resp.food_list.length;
 				}
-				console.log(count);
 				if(count == 0){
 					$(".search_result").append("<div class='search_count'><b>장소</b> "+count+"</div>");
 					$(".search_result").append("<div style='font-size:10pt;padding-left:30px;padding-right:30px;'>검색결과가 존재하지 않습니다.</div>");
@@ -944,10 +954,12 @@ $(function(){
 						lng = resp.food_list[0].x;
 					}
 					map.setCenter(new kakao.maps.LatLng(lat, lng));
+					map.setLevel(2);
 					$.each(positions,function(i, item){
 						var marker = pushMarker(item);
 						markers.push({marker:marker});
 					});
+					console.log(positions);
 					/* cafe_list, food_list 에 대한 marker 정보만 표시 */
 				}
 				
@@ -974,6 +986,7 @@ $(function(){
 				if(markers.length != 0){
 					$.each(markers,function(i, item){
 						item.marker.setMap(null);
+						notmapclusterer.removeMarker(item.marker);
 					});
 				}
 				$(".choose_info").html("");
@@ -1115,6 +1128,7 @@ $(function(){
 						lng = resp.food_list[0].x;
 					}
 					map.setCenter(new kakao.maps.LatLng(lat, lng));
+					map.setLevel(2);
 					$.each(positions,function(i, item){
 						var marker = pushMarker(item);
 						markers.push({marker:marker});
@@ -1144,6 +1158,7 @@ $(function(){
 				if(markers.length != 0){
 					$.each(markers,function(i, item){
 						item.marker.setMap(null);
+						notmapclusterer.removeMarker(item.marker);
 					});
 				}
 				
@@ -1262,6 +1277,7 @@ $(function(){
 					var lat = resp.map_list[0].lat,
 					lng = resp.map_list[0].lng;
 					map.setCenter(new kakao.maps.LatLng(lat, lng));
+					map.setLevel(2);
 					$.each(positions,function(i, item){
 						var marker = pushMarker(item);
 						markers.push({marker:marker});
@@ -1270,7 +1286,6 @@ $(function(){
 			})
 		})
 		$(document).on("click",".map_info",function(){
-			console.log($(this).find(".place_id").text());
 			$.ajax({
 				url:'/map/chooseMapInfo',
 				type:"get",
@@ -1296,7 +1311,6 @@ $(function(){
 			})
 		})
 		$(document).on("click",".cafe_info",function(){
-			console.log($(this).find(".place_id").text());
 			$.ajax({
 				url:'/map/chooseCafeInfo',
 				type:"get",
@@ -1320,7 +1334,6 @@ $(function(){
 			})
 		})
 		$(document).on("click",".food_info",function(){
-			console.log($(this).find(".place_id").text());
 			$.ajax({
 				url:'/map/chooseFoodInfo',
 				type:"get",
@@ -1342,6 +1355,24 @@ $(function(){
 				customOverlayArray.push({customOverlay : customOverlay});
 		        infoOverSet(customOverlay,map);
 			})
+		})
+		$(".current_position_btn").on("click",function(){
+			deleteMarker(currentPositionMarker.marker, currentPositionMarker.customOverlay);
+		    if (navigator.geolocation) {
+		        // GeoLocation을 이용해서 접속 위치를 얻어옵니다
+		        navigator.geolocation.getCurrentPosition(function(position) {
+		            var lat = position.coords.latitude, // 위도
+		                lon = position.coords.longitude; // 경도
+		            var locPosition = new kakao.maps.LatLng(lat, lon), // 마커가 표시될 위치를 geolocation으로 얻어온 좌표로 생성합니다
+		                message = '당신의 위치'; // 인포윈도우에 표시될 내용입니다
+		            // 마커와 인포윈도우를 표시합니다
+		            currentPositionMarker = displayMarker(locPosition, message, currentPositionMarker.customOverlay);
+		          });
+		    } else { // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
+		        var locPosition = new kakao.maps.LatLng(33.450701, 126.570667),    
+		            message = 'geolocation을 사용할수 없어요..';
+		        currentPositionMarker = displayMarker(locPosition, message, currentPositionMarker.customOverlay);
+		    }
 		})
 		/****************** 리뷰 및 기타 영역 ******************/		
 		$("#review_write").on("submit",function(){
@@ -1366,9 +1397,9 @@ $(function(){
 			if(!/\.(gif|jpg|jpeg|png)$/i.test(file[0].name)) {
 				alert('이미지 파일만 선택해 주세요.\n\n현재 파일 : ' + file[0].name);
 				$(".filebox i").css('color','none');
+				$("#imgFile").val("");
 			}
 			else {// 체크를 통과했다면 종료.
-				console.log("파일 입력");
 				/*this.outerHTML = this.outerHTML;*/
 				$(".filebox i").css('color','#038cfc');
 				return;
@@ -1410,25 +1441,6 @@ $(function(){
 		     }
 		    
 		});
-		$(".current_position_btn").on("click",function(){
-			console.log(currentPositionMarker);
-			deleteMarker(currentPositionMarker.marker, currentPositionMarker.customOverlay);
-		    if (navigator.geolocation) {
-		        // GeoLocation을 이용해서 접속 위치를 얻어옵니다
-		        navigator.geolocation.getCurrentPosition(function(position) {
-		            var lat = position.coords.latitude, // 위도
-		                lon = position.coords.longitude; // 경도
-		            var locPosition = new kakao.maps.LatLng(lat, lon), // 마커가 표시될 위치를 geolocation으로 얻어온 좌표로 생성합니다
-		                message = '당신의 위치'; // 인포윈도우에 표시될 내용입니다
-		            // 마커와 인포윈도우를 표시합니다
-		            currentPositionMarker = displayMarker(locPosition, message, currentPositionMarker.customOverlay);
-		          });
-		    } else { // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
-		        var locPosition = new kakao.maps.LatLng(33.450701, 126.570667),    
-		            message = 'geolocation을 사용할수 없어요..';
-		        currentPositionMarker = displayMarker(locPosition, message, currentPositionMarker.customOverlay);
-		    }
-		})
 		 $("#keyword").keydown(function(key) {
              if (key.keyCode == 13) {
                  //엔터 클릭시

@@ -35,7 +35,7 @@
 					var useradd = $("<li>");
 					useradd.attr("id" ,some[1]);
 					useradd.attr("class" , "exist");
-					useradd.append("<div class=thum><img src="+some[2]+">");
+					useradd.append("<div class=thum><img src=//"+some[2]+">");
 					useradd.append("<div id="+some[1]+" class=exist>"+some[1]);
 					var btns = $("<div class=chatBtns>");
 					if(${writer == loginInfo.nickname }){

@@ -64,7 +64,7 @@
 	<!-- hedaer  -->
 	<!-- ******************* -->
 
-	<div class="container">
+	<div class="container mb-5 pb-5">
 		<div class="row">
 			<div class="col-12 mt-3  mb-3">
 				<h2 class="notice-title">공지사항 게시판</h2>
@@ -84,35 +84,35 @@
 				</div>
 				<div class="row border-bottom border-dark">
 					<div
-						class="col-sm-12 board_subtitle notice-content-title  font-weight-bolder h3"><c:out value="${contents.title}" />
+						class="col-sm-12  notice-content-title  font-weight-bolder h3"><c:out value="${contents.title}" />
 					</div>
 				</div>
 
-				<div class="row border-bottom border-dark">
+				<div class="row border-bottom border-dark ">
 					<div
-						class="col-sm-2 board_subtitle  font-weight-bolder  text-center">글번호</div>
-					<div class="col-sm-10">${contents.seq}</div>
+						class="col-sm-2 py-2 board_subtitle  font-weight-bolder  text-center">글번호</div>
+					<div class="col-sm-10 py-2">${contents.seq}</div>
 				</div>
 				<div class="row border-bottom border-dark">
 					<div
-						class="col-sm-2 board_subtitle  font-weight-bolder  text-center">작성일</div>
-					<div class="col-sm-10">${contents.sDate}</div>
+						class="col-sm-2 py-2 board_subtitle  font-weight-bolder  text-center">작성일</div>
+					<div class="col-sm-10 py-2 ">${contents.sDate}</div>
 				</div>
 				<div class="row border-bottom border-dark">
 					<div
-						class="col-sm-2 board_subtitle font-weight-bolder  text-center">조회수</div>
-					<div class="col-sm-10">${contents.view_count}</div>
+						class="col-sm-2 py-2 board_subtitle font-weight-bolder  text-center">조회수</div>
+					<div class="col-sm-10 py-2">${contents.view_count}</div>
 				</div>
 				<div class="row border-bottom border-dark">
 					<div
-						class="col-sm-2 board_subtitle font-weight-bolder align-middle text-center py-3">내용</div>
-					<div class="col-sm-10 align-middle py-3">${contents.contents}</div>
+						class="col-sm-2 py-2 board_subtitle font-weight-bolder align-middle text-center py-3">내용</div>
+					<div class="col-sm-10 py-2 align-middle py-3">${contents.contents}</div>
 				</div>
 
 				<div class="row border-bottom border-dark">
 					<div
-						class="col-sm-2 board_subtitle font-weight-bolder  text-center">첨부파일</div>
-					<div class="col-sm-10">
+						class="col-sm-2 py-2 board_subtitle font-weight-bolder  text-center">첨부파일</div>
+					<div class="col-sm-10 py-2">
 						<c:if test="${!empty fileList }">
 							<ul>
 								<c:forEach var="i" items="${fileList }">
@@ -128,7 +128,7 @@
 
 
 
-				<div class="row mb-3">
+				<div class="row mt-3 mb-5">
 					<div class="col-12">
 						<c:if test="${sessionScope.loginInfo.id eq 'administrator'}">
 							<button type="button" id="NoticeModify" class="btn btn-warning">수정하기</button>

@@ -57,4 +57,10 @@
 			#{item,jdbcType=VARCHAR}
 		</foreach>
 	</delete>
+	<select id="getParentSeqBySeq" resultType="int">
+		select parent_seq from review where seq = #{seq}
+	</select>
+	<select id="getCountByParentSeq" resultType="int">
+		select count(*) from review where parent_seq = #{parent_seq}
+	</select>
 </mapper>

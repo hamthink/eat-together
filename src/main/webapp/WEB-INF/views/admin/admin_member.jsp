@@ -14,12 +14,26 @@
 	src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
 <script
 	src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/resources/css/admin.css">
 <title>Admin-회원관리</title>
 <!-- admine용 css  -->
-<link rel="stylesheet" type="text/css" href="/resources/css/admin.css">
+<link rel="stylesheet" type="text/css" href="/resources/css/admin.css?ver=1">
 <!-- ******************* -->
-
+<style>
+	#toOut{background-color:#fcbb42;border:1px solid #ffa500;}
+	#toOut:hover{background-color:#ffa500;}
+	.page-item{margin-left:2px;margin-right:2px;}
+    .page-link{
+    	line-height:1 !important;
+    	border-radius:20px !important;
+    	border:0px;
+    	color:#ff9900;
+    }
+    .page-item.active .page-link {
+	    background-color: #ffa500;
+	}
+    .page-item:hover .page-link{color:black;}
+    .sr-only{background-color:#ffa500;}
+</style>
 </head>
 <body>
 	<div class="container-fluid mx-0 px-0 admin_text">
@@ -79,7 +93,7 @@
 															<td class="admin_text">${i.id}</td>
 															<td class="admin_text">${i.nickname}</td>
 															<td class="admin_text">${i.birth}</td>
-															<td class="admin_text" id='gender'>${i.gender}</td>
+															<td class="admin_text gender">${i.gender}</td>
 															<td class="admin_text">${i.account_email}</td>
 															<td class="admin_text">${i.sdate}</td>
 															<td class="admin_text">${i.report_count}</td>
@@ -115,12 +129,12 @@
 
 	</div>
 	<script>
-		//by 지은, 성별의 int 값을 jsp에서 남여로 출력하는 과정_20200708
-		var gender = $("#gender").val();
+		//by 지은, 성별의 int 값을 jsp에서 남여로 출력하는 과정_202007020
+		var gender = $(".gender").html();
 		if (gender == 1) {
-			$("#gender_text").html("남");
-		} else {
-			$("#gender_text").html("여");
+			$(".gender").html("남");
+		} else if(gender == 2){
+			$(".gender").html("여");
 		}
 
 		//by 지은, 탈퇴하고자 하는 회원의 id를 배열로 생성, ajax로 삭제처리한다_20200713

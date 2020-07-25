@@ -154,7 +154,7 @@ body {
 						<div class="modal-dialog modal-dialog-centered modal-lg">
 							<div class="modal-content">
 								<div class="modal-header">
-									<h5 class="modal-title" id="staticBackdropLabel">이수지 :: 어쩌고저쩌고...</h5>
+									<h5 class="modal-title" id="staticBackdropLabel">이수지 :: 오만함을 모르는 겸손 개발자 자기 자신의 능력을 알아주세요</h5>
 									<button type="button" class="close" data-dismiss="modal"
 										aria-label="Close">
 										<span aria-hidden="true">&times;</span>
@@ -210,6 +210,7 @@ body {
 
 										<div class="row">
 											<div class="col-md-12">
+												<span class="badge badge-light mr-2">#서버관리자</span> 
 												<span class="badge badge-light mr-2">#서버마스터가_되고싶은</span> <span
 													class="badge badge-light mr-2">#야매개발자</span> <span
 													class="badge badge-light mr-2">#이게_왜_여기서_작동하지</span>
@@ -682,6 +683,7 @@ body {
 
 										<div class="row">
 											<div class="col-md-12">
+												<span class="badge badge-light mr-2">#깃관리자</span>
 												<span class="badge badge-light mr-2">#깃_마스터가_되어보자</span> <span
 													class="badge badge-light mr-2">#프론트는_디자이너에게</span> <span
 													class="badge badge-light mr-2">#오류_없는_개발자</span> <span

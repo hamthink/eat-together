@@ -23,7 +23,7 @@
 	<c:otherwise>
 		<!-- start column -->
 		<c:forEach var="partyList" items="${list}">
-			<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 adb">
+			<div class="col-lg-4 col-md-4 col-sm-12 adb">
 				<div class="party-list">
 					<div class="party-img">
 					<a href="#" onclick="return false;" style="cursor:default">

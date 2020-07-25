@@ -20,4 +20,8 @@ public class ErrorController {
 	public String toWritePermition() {
 		return "/error/writepermition";
 	}
+	@RequestMapping("loginPlease")
+	public String toLoginPlease() {
+		return "/error/loginPlease";
+	}
 }

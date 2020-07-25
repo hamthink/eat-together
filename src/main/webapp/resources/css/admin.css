@@ -6,12 +6,15 @@ body{
 	margin-top:0px;
 	margin-left:0px;
 	margin-right:0px;
+	background-color:#fffaed;
 
+}
+tbody{
+	background-color:#fff;
 }
 .sidebar{
 	margin-left:0px;
-
-	}
+}
 
 .sidebar{
     text-align: center;

@@ -6,7 +6,7 @@
 		select count(*) from msg
 		where msg_receiver = #{msg_receiver} and msg_sender='administrator'
 		and
-		receiver_del=0 and msg_title not like '%[1:1문의]%'
+		receiver_del=0 and msg_title not like '%[1:1%'
 	</select>
 	<select id="getSenderCount" resultType="int">
 		select count(*) from msg
@@ -38,7 +38,7 @@
 		msg.*, row_number() over(order by msg_date desc)
 		rnum from msg where
 		msg_receiver =#{msg_receiver} and msg_sender = 'administrator' and
-		receiver_del=0 and msg_title not like '%[1:1문의]%') where rnum between
+		receiver_del=0 and msg_title not like '%[1:1%') where rnum between
 		#{start} and #{end}
 	</select>
 	<!-- 보낸쪽지함 -->
@@ -59,7 +59,8 @@
 	<!-- 새로운 메세지 카운트 -->
 	<select id="newmsg" resultType="java.lang.Integer">
 		select count(*) from msg where
-		msg_receiver = #{value} and msg_view=0 and receiver_del=0 and msg_title not like
+		msg_receiver = #{value} and msg_view=0 and receiver_del=0 and
+		msg_title not like
 		'%[1:1문의]%'
 	</select>
 
@@ -88,8 +89,8 @@
 
 	<insert id="insertWelcome">
 		insert into msg
-		values(msg_seq.nextval,'administrator',#{value},'가입을축하합니다.','회원 가입을
-		축하합니다.',sysdate,0,0,0)
+		values(msg_seq.nextval,'administrator',#{value},'가입을축하합니다.','회원가입을 축하합니다!    맛있는 음식과 새로운 사람을 만나기 위한 첫걸음을 시작하세요!      새로운 맛집 친구와 함께 즐거운 모임을 시작하시길
+		바랍니다.감사합니다.',sysdate,0,0,0)
 	</insert>
 	<!-- 읽음처리 -->
 	<update id="view">

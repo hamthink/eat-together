@@ -50,15 +50,18 @@
 	<select id="partyByOption" resultType="coma.spring.dto.PartyDTO">
 		select * from (select
 		party.*, row_number() over(order by
-		${targetColumn} desc, party.seq desc) rnum from
+		${targetColumn} desc, party.seq
+		desc) rnum from
 		party) where rnum between #{start} and
 		#{end}
 	</select>
-	
+
 	<!-- by 태훈, 신고 리스트 출력 -->
 	<select id="reportList" resultType="coma.spring.dto.ReportDTO">
-		select * from (select report.* , row_number() over(order by seq desc)
-		rnum from report) where rnum between #{start} and #{end}
+		select * from (select
+		report.* , row_number() over(order by seq desc)
+		rnum from report) where
+		rnum between #{start} and #{end}
 	</select>
 
 	<!-- 여기는 네비 카운트 -->
@@ -77,13 +80,46 @@
 		sender_del = 0 and msg_title
 		not like '%[1:1답변]%'
 	</select>
-	<!-- 관리자 휴지통 -->
+	<!-- 관리자 휴지통 카운트 -->
 	<select id="getGarbageCount" resultType="int">
 		select count(*) from
-		msg where
+		msg
+		where
 		receiver_del=1 and sender_del=1 and msg_title not like
-		'%[1:1%'
+		'%[1:1%'and msg_sender!='administrator'
 	</select>
+
+	<!-- 관리자 받은쪽지 삭제함 카운트 -->
+	<select id="getSenderDelCount" resultType="int">
+		select count(*) from
+		msg where receiver_del=1 and msg_sender!='administrator' and
+		msg_title not like '%[1:1%'
+	</select>
+	<!-- 관리자 삭제된 받은쪽지함 -->
+	<select id="selectBySenderDel" resultType="coma.spring.dto.MsgDTO">
+		select * from (select
+		msg.*, row_number() over(order by msg_date desc)
+		rnum from msg where 
+		receiver_del=1 and msg_sender!='administrator' and
+		msg_title not like '%[1:1%')where rnum between
+		#{start} and #{end}
+	</select>
+		<!-- 관리자 받은쪽지 삭제함  검색 카운트 -->
+	<select id="getDelSerachCount" resultType="int">
+		select count(*) from
+		msg where msg_receiver=#{msg_receiver} and receiver_del=1 and msg_sender!='administrator' and
+		msg_title not like '%[1:1%'
+	</select>
+	<!-- 관리자 삭제된 받은쪽지함 -->
+	<select id="selectByDelSearch" resultType="coma.spring.dto.MsgDTO">
+		select * from (select
+		msg.*, row_number() over(order by msg_date desc)
+		rnum from msg where msg_receiver=#{msg_receiver} and
+		receiver_del=1 and msg_sender!='administrator' and
+		msg_title not like '%[1:1%')where rnum between
+		#{start} and #{end}
+	</select>
+
 
 	<!-- 받은쪽지함 -->
 	<select id="selectBySender" resultType="coma.spring.dto.MsgDTO">
@@ -102,27 +138,77 @@
 		msg.*, row_number() over(order by
 		msg_date desc)
 		rnum from msg where msg_sender = #{msg_receiver} and
-		sender_del = 0 and msg_title not like '%[1:1문의]%') where rnum between
+		sender_del = 0 and msg_title not like '%[1:1%') where rnum between
 		#{start} and #{end}
 	</select>
 	<!-- 관리자 휴지통 -->
-	<select id="selectByGarbage"
-		resultType="coma.spring.dto.MsgDTO">
+	<select id="selectByGarbage" resultType="coma.spring.dto.MsgDTO">
 		select * from (select
 		msg.*, row_number() over(order by
 		msg_date desc)
 		rnum from msg where
 		receiver_del=1 and sender_del=1 and
 		msg_title not like
-		'%[1:1%') where rnum between
+		'%[1:1%' and msg_sender!='administrator') where
+		rnum between
 		#{start} and #{end}
 	</select>
 	<!-- 삭제된 메세지 복구 -->
 	<update id="saveMsg">
-		update msg set receiver_del=0,sender_del=0 where msg_seq=#{value}
+		update msg set receiver_del=0,sender_del=0 where
+		msg_seq=#{value}
 	</update>
+	<!-- 삭제된 받은메세지 복구 -->
+	<update id="saveMsgSend" parameterType="map">
+		update msg set receiver_del=0 where msg_seq in
+		<foreach collection="list" item="item" index="index"
+			separator="," open="(" close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</update>
+	
+	<delete id="msgDelete">
+		delete msg where receiver_del=1 and sender_del=1
+	</delete>
+
 	<!-- 태훈 신고 내용 보기 -->
-	<select id="getReportContent" resultType="coma.spring.dto.ReportDTO">
+	<select id="getReportContent"
+		resultType="coma.spring.dto.ReportDTO">
 		select * from report where seq = #{seq}
 	</select>
+	<!-- 태훈 등록 맛집 갯수 -->
+	<select id="mapCount" resultType="int">
+		select count(*) from map
+	</select>
+	<!-- 태훈 미 접수 신고 갯수 -->
+	<select id="reportCount" resultType="int">
+		select count(*) from report where status = 0
+	</select>
+	<!-- 태훈 미 답변 문의 갯수 -->
+	<select id="questionCount" resultType="int">
+		select count (*) from msg
+		where msg_title like '%[1:1문의]%' and msg_sender != 'administrator' and sender_del=0 and msg_view &lt; 2
+	</select>
+	<!-- 태훈 연령대 별 회원 수 -->
+	<select id="memberCountByAge" resultMap="agemap">
+		<!-- select 연령 , count(*) as 수 from(select case when floor((to_char(sysdate, 'YYYY') -SUBSTR(birth,1,4)) / 10) * 10 >= 50 then 50 else (floor((to_char(sysdate, 'YYYY') -SUBSTR(birth,1,4)) / 10) * 10)  end as 연령 from member) o group by 연령 order by 연령 asc -->
+		select 연령 , count(*) as 수 from(select case when floor((to_char(sysdate, 'YYYY') -SUBSTR(birth,1,4)) / 10) * 10 >= 50 then '50대' else (floor((to_char(sysdate, 'YYYY') -SUBSTR(birth,1,4)) / 10) * 10)||'대'  end as 연령 from member) o group by 연령 order by 연령 asc
+	</select>	
+	<!-- 태훈 위 쿼리 위한 맵 -->
+	<resultMap type="hashMap" id="agemap">
+	    <!-- <result javaType="java.lang.Integer" column="연령" property="연령"></result> -->
+	    <result javaType="java.lang.String" column="연령" property="연령"></result>
+	    <result javaType="java.lang.Integer" column="수" property="수"></result>
+	</resultMap>
+	<!-- 태훈 요일별 모집 개수 -->
+	<select id="partyCountByDay" resultMap="partymap">
+		select 요일 , count(*) as 수 from (select to_char(meetdate, 'd') as 요일 from party) group by 요일 order by 요일 asc
+	</select>
+	<!-- 태훈 위 쿼리 위한 맵 -->
+	<resultMap type="hashMap" id="partymap">
+	    <result javaType="java.lang.String" column="요일" property="요일"></result>
+	    <result javaType="java.lang.Integer" column="수" property="수"></result>
+	</resultMap>
+	
+
 </mapper>

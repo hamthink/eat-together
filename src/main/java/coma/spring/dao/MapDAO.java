@@ -47,7 +47,6 @@ public class MapDAO {
 	public int updateRatingAvg(int seq) throws Exception{
 		return mybatis.update("Map.updateRatingAvg",seq);
 	}
-	
 	public List<MapDTO> selectTop5() throws Exception{
 		List<MapDTO> list = mybatis.selectList("Map.selectTop5");
 		for(int i = 0;i < list.size();i++) {
@@ -61,6 +60,9 @@ public class MapDAO {
 	// 태훈 순위 맛집 찾기
 	public List<MapDTO> selectTopStore(){	
 		return mybatis.selectList("Map.topStore");
+	}
+	public int updateRatingAvgZero(int seq) {
+		return mybatis.update("Map.updateRatingAvgZero",seq);
 	}
 	
 }

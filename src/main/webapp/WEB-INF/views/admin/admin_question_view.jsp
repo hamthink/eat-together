@@ -135,18 +135,18 @@
 														</tr>
 													</thead>
 													<tr align="center">
-														<th scope="col">제목</th>
-														<th scope="col"><c:out value="${qadto.msg_title}"></c:out></th>
+														<th scope="col" colspan=6>제목</th>
+														<th scope="col" colspan=6><c:out value="${qadto.msg_title}"></c:out></th>
 													</tr>
 
 													<tr align="center">
-														<th scope="col">작성자</th>
-														<th scope="col">${qadto.msg_sender}</th>
+														<th scope="col" colspan=6>작성자</th>
+														<th scope="col" colspan=6>${qadto.msg_sender}</th>
 													</tr>
 
 													<tr align="center">
-														<th scope="col">작성 날짜</th>
-														<th scope="col">${qadto.date}</th>
+														<th scope="col" colspan=6>작성 날짜</th>
+														<th scope="col" colspan=6>${qadto.date}</th>
 													</tr>
 													<tr>
 														<td scope="col" colspan=12><div

@@ -46,4 +46,7 @@ public class MapService {
 	public List<MapDTO> selectTopStore() throws Exception{
 		return mapdao.selectTopStore();
 	}
+	public int updateRatingAvgZero(int seq) throws Exception{
+		return mapdao.updateRatingAvgZero(seq);
+	}
 }

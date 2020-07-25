@@ -26,6 +26,7 @@
 	word-break: keep-all; 
 	height: 180px; resize: none;
 	option:readonly,disabled;
+	color:black;
 	}
 </style>
 <script>

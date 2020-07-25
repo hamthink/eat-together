@@ -86,6 +86,9 @@
 	$(document).ready(function() {
 		
 		$("#party_date").val("${con.meetdate}");
+		var stime = "${con.sTime}";
+		var time = stime.substr(0,5);
+		$("#timeDiv").text("${con.sDate} " + time);
 		var gender = $("#gender_val").val();
 		console.log(gender);
 
@@ -423,7 +426,15 @@
 									id="parent_address" value="${con.parent_address}" readonly>
 								<input type="hidden" name="place_id" id="place_id"
 									value="${con.place_id}">
-							</div>
+											<input type="hidden" name="lng" id="lng">
+											<input type="hidden" name="lat" id="lat">
+											<input type="hidden" name="category" id="category">
+											<input type="hidden" name="phone" id="phone">
+											<input type="hidden" name="road_address_name"
+												id="road_address_name">
+											<input type="hidden" name="place_url" id="place_url">
+											<input type="hidden" name="imgaddr" id="imgaddr">
+							</div>	
 						</div>
 						<div class="row mb-1">
 							<div class="col-sm-2">제목</div>
@@ -469,16 +480,40 @@
 						</div>
 						<div class="row mb-1">
 							<div class="col-sm-2">인원</div>
+							<c:choose>
+							<c:when test="${con.count eq 4 && getPartyCounts.pull eq getPartyCounts.count}">
 							<div class="col-sm-5">
-
 								<input class="form-control" type="number" name="count" min=2
+									max=4 id="party_count" aria-describedby="countHelpInline"
+									value="${con.count}" readonly>
+							</div>
+							<div class="col-sm-5">
+								<small id="countHelpInline" class="text-muted"> 모집인원만큼 참여인원이 있어 수정할 수 없습니다. </small>
+							</div>
+							</c:when>
+							<c:when test="${getPartyCounts.count >1}">
+							<div class="col-sm-5">
+								<input class="form-control" type="number" name="count" min="${getPartyCounts.count}"
 									max=4 id="party_count" aria-describedby="countHelpInline"
 									value="${con.count}">
 							</div>
 							<div class="col-sm-5">
 								<small id="countHelpInline" class="text-muted"> 인원수는
-									2~4명 사이로 설정가능합니다. </small>
+									2~4명 사이, 현재참여인원보다 적게 선택할 수 없습니다. </small>
 							</div>
+							</c:when>
+							<c:otherwise>
+							<div class="col-sm-5">
+								<input class="form-control" type="number" name="count" min="2"
+									max=4 id="party_count" aria-describedby="countHelpInline"
+									value="${con.count}">
+							</div>
+							<div class="col-sm-5">
+								<small id="countHelpInline" class="text-muted"> 인원수는
+									2~4명 사이, 현재참여인원보다 적게 선택할 수 없습니다. </small>
+							</div>
+							</c:otherwise>
+							</c:choose>
 
 						</div>
 						<div class="row mb-1">
@@ -555,16 +590,16 @@
 						</div>
 					</div>
 					<div class="col-12 col-sm-4 mt-5 pt-5" id="img-area">
-						<img src="${img}" width="350px" id="storeimg">
+						<img src="${con.imgaddr}" width="350px" id="storeimg">
 					</div>
 				</div>
 			</div>
 			<div class="container formdiv">
-				<div class="row mb-1">
-					<div class="col-1">소개</div>
+				<div class="row ">
+					<div class="col-1 mt-5">소개</div>
 					<div class="col-11 px-5">
 						<textarea class="form-control " id="content" name="content"
-							placeholder="소개를 입력해주세요" rows="10">${con.content}</textarea>
+							placeholder="소개를 입력해주세요" rows="5" style="resize: none;"><c:out value="${con.content}" default="defaultValue" escapeXml="{true|false}"/></textarea>
 					</div>
 				</div>
 				<div class="row mb-3">

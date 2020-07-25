@@ -74,8 +74,10 @@ public class MemberController {
 		mav.setViewName("member/mypage_myinfo");
 		MemberDTO mdto = (MemberDTO) session.getAttribute("loginInfo");
 		String id = mdto.getId();
-
+		String msg_receiver = mdto.getNickname();
+		int newMsg=msgservice.newmsg(msg_receiver);
 		mdto = mservice.selectMyInfo(id);
+		session.setAttribute("newMsg", newMsg);
 		mav.addObject("mdto", mdto);
 		return mav;
 	}

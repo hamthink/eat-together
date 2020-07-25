@@ -53,7 +53,8 @@ $(function(){
 						<button type="button" class="btn btn-danger" onclick="location.href='toAdmin_msg'">공지</button>					
 						<button type="button" class="btn btn-warning" onclick="location.href='admin_msgSend?ascpage=1'">받은 쪽지함</button>
 						<button type="button" class="btn btn-warning" onclick="location.href='admin_msgReceive?arcpage=1'">보낸 쪽지함</button>
-						<button type="button" class="btn btn-dark" onclick="location.href='admin_msgDelete?gcpage=1'">삭제된 쪽지함</button>
+						<button type="button" class="btn btn-dark" onclick="location.href='admin_SendDel?sdcpage=1'">삭제된 쪽지함</button>
+						<button type="button" class="btn btn-dark" onclick="location.href='admin_msgDelete?gcpage=1'">휴지통</button>
 					</div>
 				</div>
 				<hr>

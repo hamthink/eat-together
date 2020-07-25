@@ -319,6 +319,57 @@
 		});
 	});
 </script>
+<style>
+
+
+.featImgWrap {
+	height: 250px;
+	position: relative;
+	padding-top: 56.57%;
+	/* 16:9 ratio */
+	overflow: hidden;
+}
+
+.featImgWrap .cropping {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	-webkit-transform: translate(50%, 50%);
+	-ms-transform: translate(50%, 50%);
+	transform: translate(50%, 50%);
+}
+
+.featImgWrap .cropping img {
+	position: absolute;
+	top: 0;
+	left: 0;
+	max-width: 100%;
+	height: auto;
+	-webkit-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	
+}
+
+#img-area >img{
+	border-radius: 5px;
+}
+
+.featImgWrap .cropping img.landscape {
+	max-height: 100%;
+	height: 100%;
+	max-width: none;
+}
+
+.featImgWrap .cropping img.portrait {
+	max-width: 100%;
+	width: 100%;
+	max-height: none;
+	border: 1px solid black;
+}
+</style>
 </head>
 <body>
 	<!-- ******************* -->
@@ -548,7 +599,7 @@
 					</div>
 				</div>
 				<div class="container formdiv pb-5">
-					<div class="row pb-1">
+					<div class="row pb-1 mt-3">
 						<div class="col-1">소개</div>
 						<div class="col-11 px-5">
 							<textarea class="form-control " id="content" name="content"
